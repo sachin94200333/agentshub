@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agents Hub 🚂 | Railway Group Finder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        .rail-blue { background-color: #003399; }
+        .rail-yellow { color: #ffcc00; }
+        .page { transition: all 0.3s ease-in-out; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans">
+
+    <nav class="rail-blue text-white p-4 shadow-2xl sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-black rail-yellow tracking-tighter italic">AGENTS HUB</h1>
+            <div class="flex gap-4 items-center">
+                <button onclick="showPage('home')" class="text-xs font-bold hover:rail-yellow">HOME</button>
+                <button onclick="showPage('add')" class="bg-yellow-500 text-blue-900 px-4 py-1 rounded-full text-xs font-black shadow-md hover:bg-yellow-400">ADD GROUP</button>
+                <button onclick="showPage('admin')" class="opacity-40 hover:opacity-100 transition"><img src="https://cdn-icons-png.flaticon.com/512/3524/3524659.png" class="w-5 h-5 invert"></button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="bg-red-700 p-4 text-white shadow-inner">
+        <div class="container mx-auto max-w-2xl flex gap-2">
+            <input type="text" id="searchNum" placeholder="Scammer Number Check Karein..." class="w-full p-3 rounded-lg text-black font-bold outline-none focus:ring-4 focus:ring-yellow-400">
+            <button onclick="checkBlacklist()" class="bg-black px-6 py-3 rounded-lg font-black hover:bg-gray-900 transition whitespace-nowrap">CHECK NOW</button>
+        </div>
+    </div>
+
+    <main class="container mx-auto p-4 md:p-8">
+        
+        <div id="page-home" class="page">
+            <div class="flex justify-between items-center mb-6 border-b-4 border-blue-800 pb-2">
+                <h2 class="text-2xl font-black text-blue-900 uppercase">Verified Groups</h2>
+                <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded">Railway Updates</span>
+            </div>
+            <div id="groupList" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <p class="text-center col-span-full py-10 text-gray-400 animate-pulse">Searching for groups...</p>
+            </div>
+        </div>
+
+        <div id="page-add" class="page hidden max-w-md mx-auto bg-white p-8 rounded-3xl shadow-2xl border-t-8 border-yellow-500">
+            <h2 class="text-3xl font-black text-center mb-2 text-blue-900">JOIN THE HUB</h2>
+            <p class="text-center text-gray-500 text-sm mb-8 italic">Apna Railway Group promote karein!</p>
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1 ml-1">GROUP NAME</label>
+                    <input type="text" id="gName" placeholder="e.g. RRB NTPC Experts" class="w-full border-2 p-3 rounded-xl focus:border-blue-600 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1 ml-1">WHATSAPP LINK</label>
+                    <input type="url" id="gLink" placeholder="https://chat.whatsapp.com/..." class="w-full border-2 p-3 rounded-xl focus:border-blue-600 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-600 mb-1 ml-1">TOTAL MEMBERS</label>
+                    <input type="number" id="gMembers" placeholder="e.g. 500" class="w-full border-2 p-3 rounded-xl focus:border-blue-600 outline-none">
+                </div>
+                <button onclick="submitGroup()" class="w-full bg-blue-700 text-white font-black py-4 rounded-xl shadow-lg hover:bg-blue-900 transform hover:scale-95 transition uppercase tracking-widest">Submit Request</button>
+            </div>
+        </div>
+
+        <div id="page-admin" class="page hidden">
+            <div id="admin-login" class="max-w-sm mx-auto bg-white p-10 rounded-3xl shadow-xl text-center">
+                <div class="mb-6 bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto text-3xl">🔐</div>
+                <h2 class="text-xl font-bold mb-6">Admin Access Only</h2>
+                <input type="password" id="adminPass" placeholder="Enter Password" class="w-full border-2 p-4 rounded-xl text-center mb-4 focus:border-red-500 outline-none">
+                <button onclick="verifyAdmin()" class="w-full bg-gray-900 text-white py-4 rounded-xl font-bold hover:bg-black transition">Verify & Login</button>
+            </div>
+            <div id="admin-content" class="hidden">
+                <div class="flex justify-between items-center bg-white p-6 rounded-2xl shadow-md mb-8">
+                    <h2 class="text-2xl font-black text-red-600 uppercase italic">Pending Approvals</h2>
+                    <button onclick="showPage('home')" class="text-sm font-bold text-gray-500 hover:text-black">← Back to Site</button>
+                </div>
+                <div id="pendingList" class="grid gap-4"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // --- DATABASE CONNECTION ---
+        const SB_URL = "https://bwozxpcmpciftudqcyuw.supabase.co";
+        const SB_KEY = "EyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ3b3p4cGNtcGNpZnR1ZHFjeXV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwNTY2NzIsImV4cCI6MjA4MzYzMjY3Mn0.AO_daHPVF2Pv8AqEASh3851KeYrBVd2cQpUDV5QVfrU";
+        const sb = supabase.createClient(SB_URL, SB_KEY);
+
+        // Navigation Control
+        function showPage(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+            document.getElementById('page-' + id).classList.remove('hidden');
+            window.scrollTo(0,0);
+            if(id === 'home') loadGroups();
+        }
+
+        // Load Approved Groups
+        async function loadGroups() {
+            const { data, error } = await sb.from('railway_groups').select('*').eq('is_approved', true).order('created_at', { ascending: false });
+            const container = document.getElementById('groupList');
+            
+            if(data && data.length > 0) {
+                container.innerHTML = data.map(g => `
+                    <div class="bg-white rounded-3xl shadow-lg overflow-hidden border-b-8 border-blue-700 hover:shadow-2xl transition-all hover:-translate-y-1">
+                        <div class="p-6">
+                            <h3 class="text-xl font-black text-gray-800 uppercase leading-tight mb-2">${g.group_name}</h3>
+                            <div class="flex items-center gap-2 mb-6">
+                                <span class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
+                                <span class="text-sm font-bold text-blue-600">${g.members} Members Active</span>
+                            </div>
+                            <a href="${g.link}" target="_blank" class="block w-full text-center bg-green-500 text-white font-black py-4 rounded-2xl hover:bg-green-600 shadow-lg transition">JOIN WHATSAPP</a>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                container.innerHTML = '<div class="col-span-full text-center py-20 bg-white rounded-3xl text-gray-400 font-bold">Abhi koi verified group nahi hai.</div>';
+            }
+        }
+
+        // Search Blacklist
+        async function checkBlacklist() {
+            const num = document.getElementById('searchNum').value;
+            if(!num) return alert("Please enter a number!");
+            
+            const { data } = await sb.from('blacklist').select('*').eq('phone_number', num);
+            if(data && data.length > 0) {
+                alert("❌ ALERT: Yeh number Blacklisted hai! \nReason: " + data[0].reason);
+            } else {
+                alert("✅ Record Clear: Yeh number safe lag raha hai.");
+            }
+        }
+
+        // Submit New Group
+        async function submitGroup() {
+            const name = document.getElementById('gName').value;
+            const link = document.getElementById('gLink').value;
+            const members = document.getElementById('gMembers').value;
+
+            if(!name || !link) return alert("Poori details bharein!");
+
+            const { error } = await sb.from('railway_groups').insert([{
+                group_name: name, link: link, members: parseInt(members || 0), is_approved: false
+            }]);
+
+            if(!error) {
+                alert("Success! Admin approval ke baad group live ho jayega.");
+                showPage('home');
+                document.querySelectorAll('input').forEach(i => i.value = '');
+            } else { alert("Error: " + error.message); }
+        }
+
+        // Admin Verification (Pass: 1234)
+        function verifyAdmin() {
+            const pass = document.getElementById('adminPass').value;
+            if(pass === "1234") {
+                document.getElementById('admin-login').classList.add('hidden');
+                document.getElementById('admin-content').classList.remove('hidden');
+                loadPending();
+            } else { alert("Galat Password!"); }
+        }
+
+        async function loadPending() {
+            const { data } = await sb.from('railway_groups').select('*').eq('is_approved', false);
+            const list = document.getElementById('pendingList');
+            list.innerHTML = data && data.length ? data.map(g => `
+                <div class="bg-white p-6 rounded-2xl shadow-sm flex flex-col md:flex-row justify-between items-center gap-4 border-l-8 border-red-500">
+                    <div class="text-center md:text-left">
+                        <p class="font-black text-gray-800 uppercase">${g.group_name}</p>
+                        <p class="text-blue-600 text-xs truncate max-w-xs">${g.link}</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="approve('${g.id}')" class="bg-green-500 text-white px-6 py-2 rounded-xl font-bold hover:bg-green-600">Approve</button>
+                        <button onclick="deleteG('${g.id}')" class="bg-red-100 text-red-600 px-6 py-2 rounded-xl font-bold hover:bg-red-200">Reject</button>
+                    </div>
+                </div>
+            `).join('') : '<p class="text-center text-gray-400 py-10">Sab clean hai! No pending requests.</p>';
+        }
+
+        async function approve(id) {
+            const { error } = await sb.from('railway_groups').update({ is_approved: true }).eq('id', id);
+            if(!error) loadPending();
+        }
+
+        async function deleteG(id) {
+            if(confirm("Kya aap is group ko delete karna chahte hain?")) {
+                const { error } = await sb.from('railway_groups').delete().eq('id', id);
+                if(!error) loadPending();
+            }
+        }
+
+        // Auto-load groups on start
+        loadGroups();
+    </script>
+</body>
+</html>
