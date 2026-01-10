@@ -133,7 +133,7 @@
                     <h2 class="text-3xl font-black text-blue-950 uppercase italic tracking-tighter">Railway Directories</h2>
                     <p class="text-[10px] font-bold text-gray-400 uppercase">Verified active whatsapp group links</p>
                 </div>
-                <button onclick="changePage('register')" class="bg-blue-950 text-white px-8 py-4 rounded-2xl font-black text-xs shadow-2xl hover:scale-105 transition">+ NEW HUB</button>
+                <button onclick="changePage('register')" class="bg-blue-950 text-white px-8 py-4 rounded-2xl font-black text-xs shadow-2xl hover:scale-105 transition">+ ADD MY GROUP</button>
             </div>
             <div id="groups-list-container" class="space-y-4">
                 </div>
@@ -381,7 +381,7 @@
          */
         function handleAdminLogin() {
             const pin = document.getElementById('admin-login-pin').value;
-            if(pin === '1234') { //
+            if(pin === '8102') { //
                 document.getElementById('admin-auth-panel').classList.add('hidden');
                 document.getElementById('admin-main-dashboard').classList.remove('hidden');
                 document.getElementById('approval-toggle-switch').checked = autoApproveMode;
