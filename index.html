@@ -139,13 +139,17 @@
                 </div>
         </div>
 
-        <div id="page-blacklist" class="page-content hidden">
-            <div class="text-center mb-12">
-                <h2 class="text-4xl font-black text-red-600 uppercase italic tracking-tighter mb-2">Scammer Database</h2>
-                <p class="text-sm font-bold text-gray-500 uppercase tracking-widest">Check history before you pay anyone</p>
-            </div>
-            <div id="blacklist-list-container" class="grid gap-6 md:grid-cols-2">
-                </div>
+      <div id="page-blacklist" class="page-content hidden">
+    <div class="text-center mb-12">
+        <h2 class="text-4xl font-black text-red-600 uppercase italic tracking-tighter mb-4">Scammer Database</h2>
+        <p class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-8">Check history before you pay anyone</p>
+        
+        <button onclick="openReportModal()" class="bg-red-600 text-white px-12 py-5 rounded-full font-black text-sm uppercase shadow-2xl hover:bg-red-700 transition">+ Report a Fraudster</button>
+    </div>
+    
+    <div id="blacklist-list-container" class="grid gap-6 md:grid-cols-2"></div>
+</div>
+
             <div class="mt-16 text-center">
                 <button onclick="openReportModal()" class="bg-red-600 text-white px-12 py-5 rounded-full font-black text-sm uppercase shadow-2xl hover:bg-red-700 transition">+ Report a Fraudster</button>
             </div>
@@ -367,8 +371,8 @@
 
         async function handleScammerReport() {
             const scmId = document.getElementById('report-scm-id').value;
-            const scmReason = document.getElementById('report-scm-reason').value;
-            
+const rawScmId = document.getElementById('report-scm-id').value;
+const scmId = rawScmId.replace(/\s+/g, ''); // Ye line space hata degi            
             if(!scmId || !scmReason) return;
             
             await client.from('blacklist').insert([{ phone_number: scmId, reason: scmReason }]);
