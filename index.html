@@ -369,16 +369,32 @@
             `).join('') || `<p class="text-center col-span-2 py-10 font-bold text-gray-400">Database is clean. No scammers reported yet.</p>`;
         }
 
-        async function handleScammerReport() {
-            const scmId = document.getElementById('report-scm-id').value;
-const rawScmId = document.getElementById('report-scm-id').value;
-const scmId = rawScmId.replace(/\s+/g, ''); // Ye line space hata degi            
-            if(!scmId || !scmReason) return;
-            
-            await client.from('blacklist').insert([{ phone_number: scmId, reason: scmReason }]);
-            closeReportModal();
-            fetchScammerRecords();
-        }
+       async function handleScammerReport() {
+    const inputField = document.getElementById('report-scm-id');
+    const scmReason = document.getElementById('report-scm-reason').value;
+    
+    // Yahan ho rahi hai asli safai
+    const cleanScmId = inputField.value.replace(/\s+/g, ''); 
+    
+    if(!cleanScmId || !scmReason) {
+        alert("Pura details bhariye!");
+        return;
+    }
+    
+    // Database mein ab saaf number jayega
+    const { error } = await client.from('blacklist').insert([{ 
+        phone_number: cleanScmId, 
+        reason: scmReason 
+    }]);
+    
+    if(!error) {
+        closeReportModal();
+        fetchScammerRecords();
+        inputField.value = ""; // Form saaf karne ke liye
+    } else {
+        alert("Error: " + error.message);
+    }
+}
 
         /**
          * 7. ADMIN SECURITY MODULE
