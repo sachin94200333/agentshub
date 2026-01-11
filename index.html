@@ -273,11 +273,12 @@
          * Description: Filters all visible records across cards using live text matching.
          */
         function executeUniversalSearch() {
-            const searchTerm = document.getElementById('global-search-bar').value.toLowerCase();
+            const rawVal = document.getElementById('global-search-bar').value;
+const searchTerm = rawVal.replace(/\s+/g, '').toLowerCase(); // Ye search bar se space hatayega
             const allCards = document.querySelectorAll('.group-item-card, .blacklist-item-card');
             
             allCards.forEach(card => {
-                const textContent = card.innerText.toLowerCase();
+               const textContent = card.innerText.replace(/\s+/g, '').toLowerCase(); // Ye card ke data se space hatayega
                 if(textContent.includes(searchTerm)) {
                     card.style.display = "flex";
                     if(card.classList.contains('blacklist-item-card')) card.style.display = "block";
@@ -351,29 +352,35 @@
         /**
          * 6. BLACKLIST SYSTEM
          */
-        async function fetchScammerRecords() {
-            const { data } = await client.from('blacklist').select('*').order('created_at', { ascending: false });
-            const container = document.getElementById('blacklist-list-container');
-            
-            container.innerHTML = (data || []).map(scam => `
-                <div class="blacklist-item-card bg-white p-6 rounded-[2rem] border-l-[12px] border-red-600 shadow-xl relative overflow-hidden">
-                    <div class="absolute right-[-20px] top-[-20px] text-red-50 opacity-50 text-8xl rotate-12"><i class="fas fa-ban"></i></div>
-                    <div class="relative z-10">
-                        <h4 class="text-2xl font-black text-red-600 uppercase italic tracking-tighter mb-2">🚫 ID: ${scam.phone_number}</h4>
-                        <div class="bg-red-50 p-4 rounded-2xl border border-red-100">
-                            <p class="text-[11px] font-black text-red-900 uppercase mb-1">Scam Incident Report:</p>
-                            <p class="text-xs font-bold text-slate-700 italic tracking-tight leading-relaxed">"${scam.reason}"</p>
-                        </div>
+       // - Space Fix Logic
+async function fetchScammerRecords() {
+    const { data } = await client.from('blacklist').select('*').order('created_at', { ascending: false });
+    const container = document.getElementById('blacklist-list-container');
+    
+    container.innerHTML = (data || []).map(scam => {
+        // Number se space hata kar ek hidden attribute mein rakhenge search ke liye
+        const searchFriendlyId = scam.phone_number.replace(/\s+/g, '');
+        
+        return `
+            <div class="blacklist-item-card bg-white p-6 rounded-[2rem] border-l-[12px] border-red-600 shadow-xl relative overflow-hidden" data-number="${searchFriendlyId}">
+                <div class="absolute right-[-20px] top-[-20px] text-red-50 opacity-50 text-8xl rotate-12"><i class="fas fa-ban"></i></div>
+                <div class="relative z-10">
+                    <h4 class="text-2xl font-black text-red-600 uppercase italic tracking-tighter mb-2">🚫 ID: ${scam.phone_number}</h4>
+                    <div class="bg-red-50 p-4 rounded-2xl border border-red-100">
+                        <p class="text-[11px] font-black text-red-900 uppercase mb-1">Scam Incident Report:</p>
+                        <p class="text-xs font-bold text-slate-700 italic tracking-tight leading-relaxed">"${scam.reason}"</p>
                     </div>
                 </div>
-            `).join('') || `<p class="text-center col-span-2 py-10 font-bold text-gray-400">Database is clean. No scammers reported yet.</p>`;
-        }
+            </div>
+        `;
+    }).join('') || `<p class="text-center col-span-2 py-10 font-bold text-gray-400 font-black uppercase italic">Database is clean. No scammers reported yet.</p>`;
+}
 
-       async function handleScammerReport() {
+async function handleScammerReport() {
     const inputField = document.getElementById('report-scm-id');
     const scmReason = document.getElementById('report-scm-reason').value;
     
-    // Yahan ho rahi hai asli safai
+    // Paste karte hi space saaf
     const cleanScmId = inputField.value.replace(/\s+/g, ''); 
     
     if(!cleanScmId || !scmReason) {
@@ -390,7 +397,7 @@
     if(!error) {
         closeReportModal();
         fetchScammerRecords();
-        inputField.value = ""; // Form saaf karne ke liye
+        inputField.value = ""; 
     } else {
         alert("Error: " + error.message);
     }
