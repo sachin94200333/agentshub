@@ -348,6 +348,28 @@ const searchTerm = rawVal.replace(/\s+/g, '').toLowerCase(); // Ye search bar se
                 document.getElementById('final-submit-btn').innerText = "RETRY SUBMISSION";
             }
         }
+        /**
+ * SEARCH BAR LOGIC - Space Fix
+ */
+function executeUniversalSearch() {
+    // Search bar se number uthao aur turant space hata do
+    const rawInput = document.getElementById('global-search-bar').value;
+    const searchTerm = rawInput.replace(/\s+/g, '').toLowerCase(); 
+    
+    // Saare cards ko filter karo
+    const allCards = document.querySelectorAll('.group-item-card, .blacklist-item-card');
+    
+    allCards.forEach(card => {
+        // Card ke text se bhi space hata kar match karo
+        const cardText = card.innerText.replace(/\s+/g, '').toLowerCase();
+        
+        if(cardText.includes(searchTerm)) {
+            card.style.display = card.classList.contains('group-item-card') ? "flex" : "block";
+        } else {
+            card.style.display = "none";
+        }
+    });
+}
 
         /**
          * 6. BLACKLIST SYSTEM
