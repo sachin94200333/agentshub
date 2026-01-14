@@ -34,7 +34,7 @@
         .digital-clock { font-family: 'Orbitron', sans-serif; background: #0f172a; color: var(--rail-yellow); padding: 10px 20px; border-radius: 18px; border: 2px solid var(--rail-yellow); box-shadow: 0 0 20px rgba(250, 204, 21, 0.3); display: flex; align-items: center; gap: 10px; }
         .switch { position: relative; display: inline-block; width: 60px; height: 30px; } .switch input { opacity: 0; width: 0; height: 0; } .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 34px; } .slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; } input:checked + .slider { background-color: var(--primary-blue); } input:checked + .slider:before { transform: translateX(30px); }
 
-        /* --- AADHAR TOOL CSS (Fixed & Precise) --- */
+        /* --- AADHAR TOOL CSS --- */
         .aadhar-tool-wrapper { font-family: sans-serif; color: black; display: flex; flex-direction: column; align-items: center; }
         
         /* Card Box: Fixed 960px width for HD PDF generation */
@@ -51,29 +51,28 @@
             transform-origin: top center; 
             width: 960px; 
             margin-left: auto; margin-right: auto;
-            /* Mobile Scale + Negative Margin to pull it up */
             transform: scale(0.34); margin-bottom: -380px; margin-top: -20px;
         }
         @media(min-width: 768px) { 
             #preview-scaler { transform: scale(0.5); margin-bottom: -300px; margin-top: 0; } 
         }
 
-        /* Elements Z-INDEX FIX (To keep text ON TOP of image) */
-        .template-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+        /* Elements Z-INDEX FIX (Text must be ABOVE image) */
+        .template-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1 !important; pointer-events: none; }
         
-        .user-pic { position: absolute; top: 136px; left: 90px; width: 176px; height: 220px; background: #f0f0f0; z-index: 10; object-fit: cover; }
-        .side-date { position: absolute; left: 56px; top: 460px; transform: rotate(-90deg); transform-origin: left bottom; font-size: 21px; font-weight: 600; color: #000; white-space: nowrap; letter-spacing: 0.4px; z-index: 10; font-family: Arial, sans-serif; }
-        .text-details { position: absolute; top: 130px; left: 300px; color: #000; line-height: 1.25; z-index: 10; text-align: left; }
+        /* Text Elements - High Z-Index */
+        .user-pic { position: absolute; top: 136px; left: 90px; width: 176px; height: 220px; background: #f0f0f0; z-index: 50; object-fit: cover; }
+        .side-date { position: absolute; left: 56px; top: 460px; transform: rotate(-90deg); transform-origin: left bottom; font-size: 21px; font-weight: 600; color: #000; white-space: nowrap; letter-spacing: 0.4px; z-index: 50; font-family: Arial, sans-serif; }
+        .text-details { position: absolute; top: 130px; left: 300px; color: #000; line-height: 1.25; z-index: 50; text-align: left; }
         
-        /* Fonts increased for HD */
         .txt-name-en { font-size: 30px; font-weight: 700; display: block; margin-bottom: 4px; }
         .txt-name-hi { font-size: 28px; font-family: 'Arya', sans-serif; display: block; margin-bottom: 8px; }
         .txt-dob { font-size: 27px; font-weight: 500; display: block; margin-bottom: 4px; }
         .txt-gender { font-size: 27px; font-weight: 500; display: block; }
         
-        .num-big { position: absolute; bottom: 50px; width: 100%; text-align: center; font-size: 52px; font-weight: 700; letter-spacing: 2px; color: #000; font-family: 'Courier New', monospace; z-index: 10; }
+        .num-big { position: absolute; bottom: 50px; width: 100%; text-align: center; font-size: 52px; font-weight: 700; letter-spacing: 2px; color: #000; font-family: 'Courier New', monospace; z-index: 50; }
         
-        .back-container { position: absolute; top: 130px; left: 40px; width: 500px; text-align: left; color: #000; z-index: 10; }
+        .back-container { position: absolute; top: 130px; left: 40px; width: 500px; text-align: left; color: #000; z-index: 50; }
         .addr-group { margin-bottom: 24px; }
         .addr-label { display: block; font-size: 26px; font-weight: bold; margin-bottom: 4px; }
         .addr-text { display: block; font-size: 23px; line-height: 1.35; word-wrap: break-word; }
@@ -82,7 +81,7 @@
         .tool-label { font-size: 11px; font-weight: bold; text-transform: uppercase; color: #555; margin-bottom: 2px; display: block; }
     </style>
 </head>
-<body onload="loadSavedTemplates()">
+<body onload="initApp()">
 
     <div class="bg-slate-900 text-white py-3 border-b-4 border-yellow-500 sticky top-0 z-[60] overflow-hidden">
         <div class="animate-marquee whitespace-nowrap inline-block font-black italic text-xs uppercase tracking-[0.1em]">
@@ -147,7 +146,7 @@
                 </button>
                 <div class="text-right">
                     <h2 class="text-xl font-black text-blue-950 uppercase italic tracking-tighter">HD Generator</h2>
-                    <span class="text-[10px] font-bold text-green-600 uppercase tracking-widest">Optimized Mode ●</span>
+                    <span class="text-[10px] font-bold text-green-600 uppercase tracking-widest">Fixed Mode ●</span>
                 </div>
             </div>
 
@@ -272,9 +271,14 @@
         const client = supabase.createClient(HUB_URL, HUB_KEY);
         let autoApproveMode = true;
 
-        // Default Template URLs (Set your provided links here)
+        // Default Template URLs
         const DEFAULT_FRONT = "https://i.ibb.co/NdLV3y52/pvc1f.jpg";
         const DEFAULT_BACK = "https://i.ibb.co/KjM9gkLM/pvc2.jpg";
+
+        function initApp() {
+            loadSavedTemplates();
+            fetchHubGroups();
+        }
 
         // --- NAVIGATION ---
         function changePage(pageId) {
@@ -366,7 +370,6 @@
             let file = e.target.files[0]; if(!file) return;
             let reader = new FileReader();
             reader.onload = function(event) {
-                // Save image data to local storage
                 localStorage.setItem(type + '_bg_custom', event.target.result);
                 document.getElementById(type + '_bg_img').src = event.target.result;
                 alert("Template Updated!");
@@ -383,7 +386,6 @@
         }
 
         function loadSavedTemplates() {
-            // Check Local Storage first, otherwise use default
             let frontBg = localStorage.getItem('front_bg_custom');
             let backBg = localStorage.getItem('back_bg_custom');
             document.getElementById('front_bg_img').src = frontBg || DEFAULT_FRONT;
@@ -395,8 +397,15 @@
             try {
                 const res = await fetch(`https://inputtools.google.com/request?text=${encodeURI(text)}&itc=hi-t-i0-und&num=1&cp=0&cs=1&ie=utf-8&oe=utf-8&app=demopage`);
                 const data = await res.json();
-                if(data && data[1][0][1][0]) { document.getElementById(targetId).value = data[1][0][1][0]; render(); }
-            } catch(e){}
+                if(data && data[1][0][1][0]) { 
+                    document.getElementById(targetId).value = data[1][0][1][0]; 
+                    render(); 
+                }
+            } catch(e) {
+                // FAIL-SAFE: If translation API is blocked (Vercel), use English text
+                document.getElementById(targetId).value = text;
+                render();
+            }
         }
 
         function render() {
@@ -419,38 +428,33 @@
             r.readAsDataURL(e.target.files[0]);
         }
 
-        // --- PDF GENERATION (FIXED BLANK PDF) ---
+        // --- PDF GENERATION (OPTIMIZED & FIXED) ---
         function savePdf() {
             const btn = document.getElementById('btn-print-pdf');
             const originalText = btn.innerHTML;
             btn.innerHTML = "Generating PDF...";
             
-            // Clone for Full Resolution Render
             const element = document.getElementById('preview-scaler');
             const clone = element.cloneNode(true);
             
-            // Positioning Hack: Move off-screen instead of hidden behind
-            // This fixes blank PDF issue because renderer can "see" it
+            // Positioning for PDF Generator (Off-screen but visible to script)
             clone.style.transform = "scale(1)";
             clone.style.margin = "0";
             clone.style.position = "absolute";
             clone.style.left = "-9999px"; 
             clone.style.top = "0";
-            clone.style.width = "960px"; // Force HD width
-            
-            // White background to prevent transparency issues
+            clone.style.width = "960px"; 
             clone.style.background = "#fff";
 
             document.body.appendChild(clone);
 
-            // OPTIMIZED SETTINGS: Scale 2 + Quality 0.95 = Low Size, High Clarity
             var opt = {
                 margin: 0,
                 filename: 'Aadhar_Final.pdf',
                 image: { type: 'jpeg', quality: 0.95 },
                 html2canvas: { 
                     scale: 2, 
-                    useCORS: true, // CRITICAL FOR EXTERNAL IMAGES
+                    useCORS: true, 
                     scrollY: 0,
                     windowWidth: 1000
                 },
@@ -466,8 +470,6 @@
                 document.body.removeChild(clone);
             });
         }
-
-        fetchHubGroups();
     </script>
 </body>
 </html>
