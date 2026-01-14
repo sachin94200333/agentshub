@@ -10,12 +10,37 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
-    <link href="https://fonts.googleapis.com/css2?family=Arya:wght@400;700&family=Orbitron:wght@500;700;900&family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700&family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     
     <style>
         /* --- GLOBAL THEME --- */
         :root { --primary-blue: #1e3a8a; --danger-red: #dc2626; --rail-yellow: #facc15; }
-        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); min-height: 100vh; overflow-x: hidden; }
+        body { font-family: 'Roboto', sans-serif; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); min-height: 100vh; overflow-x: hidden; }
+
+        /* --- PRINT SETTINGS (For Full Receipt) --- */
+        @media print {
+            body { background: white; }
+            /* Hide Buttons, Nav, and Preview Scaler when printing receipt */
+            button, .no-print, nav, #preview-scaler, .digital-clock { display: none !important; } 
+            
+            /* Ensure the Tool Page is visible */
+            #page-tool-aadhar { display: block !important; }
+            .aadhar-tool-wrapper { align-items: flex-start; width: 100%; }
+            .card-box { display: none; } /* Hide the visual card in receipt mode */
+            
+            /* Make inputs look like text */
+            input, textarea, select { 
+                border: none !important; 
+                background: transparent !important; 
+                padding: 0 !important; 
+                font-weight: bold; 
+                color: black !important;
+                -webkit-appearance: none;
+            }
+            .tool-label { color: #666 !important; margin-top: 10px; }
+        }
 
         /* --- ANIMATIONS --- */
         @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
@@ -53,33 +78,36 @@
         .user-pic { position: absolute; top: 136px; left: 90px; width: 176px; height: 220px; background: #f0f0f0; z-index: 50; object-fit: cover; }
         .text-details { position: absolute; top: 130px; left: 300px; color: #000; line-height: 1.25; z-index: 50; text-align: left; }
         
-        .txt-name-en { font-size: 30px; font-weight: 700; display: block; margin-bottom: 4px; }
-        .txt-name-hi { font-size: 28px; font-family: 'Arya', sans-serif; display: block; margin-bottom: 8px; }
-        .txt-dob { font-size: 27px; font-weight: 500; display: block; margin-bottom: 4px; }
-        .txt-gender { font-size: 27px; font-weight: 500; display: block; }
-        .num-big { position: absolute; bottom: 50px; width: 100%; text-align: center; font-size: 52px; font-weight: 700; letter-spacing: 2px; color: #000; font-family: 'Courier New', monospace; z-index: 50; }
-        .side-date { position: absolute; left: 56px; top: 460px; transform: rotate(-90deg); transform-origin: left bottom; font-size: 21px; font-weight: 600; color: #000; white-space: nowrap; letter-spacing: 0.4px; z-index: 50; font-family: Arial, sans-serif; }
+        /* FONTS MAPPING */
+        .txt-name-en { font-family: 'Roboto', sans-serif; font-size: 26px; font-weight: 700; display: block; margin-bottom: 4px; letter-spacing: 0.5px; }
+        .txt-name-hi { font-family: 'Noto Sans Devanagari', sans-serif; font-size: 30px; font-weight: 600; display: block; margin-bottom: 8px; margin-top: 8px; }
+        .txt-dob { font-family: 'Roboto', sans-serif; font-size: 27px; font-weight: 700; display: block; margin-bottom: 4px; }
+        .txt-gender { font-family: 'Roboto', sans-serif; font-size: 27px; font-weight: 600; display: block; }
+        .gender-hi { font-family: 'Noto Sans Devanagari', sans-serif; }
+
+        .num-big { position: absolute; bottom: 50px; width: 100%; text-align: center; font-size: 52px; font-weight: 700; letter-spacing: 3px; color: #000; font-family: 'Courier New', monospace; z-index: 50; text-shadow: 0 0 1px rgba(0,0,0,0.1); }
+        .side-date { position: absolute; left: 56px; top: 460px; transform: rotate(-90deg); transform-origin: left bottom; font-size: 21px; font-weight: 600; color: #000; white-space: nowrap; letter-spacing: 0.4px; z-index: 50; font-family: 'Roboto', sans-serif; }
         .back-container { position: absolute; top: 130px; left: 40px; width: 500px; text-align: left; color: #000; z-index: 50; }
         .addr-group { margin-bottom: 24px; }
-        .addr-label { display: block; font-size: 26px; font-weight: bold; margin-bottom: 4px; }
-        .addr-text { display: block; font-size: 23px; line-height: 1.35; word-wrap: break-word; }
+        .addr-label { display: block; font-size: 26px; font-weight: bold; margin-bottom: 4px; font-family: 'Noto Sans Devanagari', sans-serif; }
+        .addr-text { display: block; font-size: 23px; line-height: 1.35; word-wrap: break-word; font-family: 'Noto Sans Devanagari', sans-serif; }
+        .addr-text-en { font-family: 'Roboto', sans-serif; }
 
         .tool-input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 8px; font-size: 14px; }
         .tool-label { font-size: 11px; font-weight: bold; text-transform: uppercase; color: #555; margin-bottom: 2px; display: block; }
         
-        /* NOTICE BOX STYLE */
         .notice-box { background: #fee2e2; border: 1px dashed #ef4444; color: #b91c1c; padding: 10px; font-size: 12px; font-weight: bold; border-radius: 8px; margin-bottom: 15px; overflow: hidden; white-space: nowrap; }
     </style>
 </head>
 <body onload="initApp()">
 
-    <div class="bg-slate-900 text-white py-3 border-b-4 border-yellow-500 sticky top-0 z-[60] overflow-hidden">
+    <div class="bg-slate-900 text-white py-3 border-b-4 border-yellow-500 sticky top-0 z-[60] overflow-hidden no-print">
         <div class="animate-marquee whitespace-nowrap inline-block font-black italic text-xs uppercase tracking-[0.1em]">
             🛑 OFFICIAL NOTICE: VERIFY ALL AGENTS BEFORE PAYMENT. USE THE BLACKLIST SEARCH TO PROTECT YOURSELF. 🛑
         </div>
     </div>
 
-    <nav class="bg-white/80 backdrop-blur-md p-4 sticky top-[44px] z-50 border-b shadow-sm">
+    <nav class="bg-white/80 backdrop-blur-md p-4 sticky top-[44px] z-50 border-b shadow-sm no-print">
         <div class="container mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <div class="bg-blue-900 p-2 rounded-xl text-white shadow-lg"><i class="fas fa-shield-halved text-xl"></i></div>
@@ -96,7 +124,7 @@
         </div>
     </nav>
 
-    <div class="fixed bottom-8 right-8 z-[100] hidden md:flex">
+    <div class="fixed bottom-8 right-8 z-[100] hidden md:flex no-print">
         <div class="digital-clock">
             <i class="fas fa-clock animate-pulse"></i>
             <span id="full-time" class="text-xl font-black tracking-widest">00:00:00</span>
@@ -130,7 +158,7 @@
 
         <div id="page-tool-aadhar" class="page-content hidden">
             
-            <div class="flex justify-between items-center mb-6 bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+            <div class="flex justify-between items-center mb-6 bg-white p-4 rounded-2xl shadow-sm border border-gray-100 no-print">
                 <button onclick="changePage('groups')" class="text-blue-900 font-bold text-sm uppercase flex items-center gap-2 hover:bg-blue-50 px-4 py-2 rounded-lg transition">
                     <i class="fas fa-arrow-left"></i> Back to Hub
                 </button>
@@ -145,7 +173,7 @@
                 <div class="bg-white p-6 rounded-3xl shadow-xl border border-gray-100 w-full max-w-2xl mb-8 relative">
                     <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-600 to-purple-600"></div>
                     
-                    <div id="live-notice-display" class="notice-box">
+                    <div id="live-notice-display" class="notice-box no-print">
                         <span class="animate-marquee inline-block">Loading Updates...</span>
                     </div>
 
@@ -153,7 +181,7 @@
                         <div><label class="tool-label">Aadhar Number</label><input type="text" id="in_uid" class="tool-input" oninput="render()"></div>
                         <div><label class="tool-label">Issue Date</label><input type="text" id="in_date" value="26/03/2016" class="tool-input" oninput="render()"></div>
                         <div><label class="tool-label">Name (Eng)</label><input type="text" id="in_en_name" class="tool-input" oninput="handleNameInput(this.value)"></div>
-                        <div><label class="tool-label">Name (Hindi)</label><input type="text" id="in_hi_name" class="tool-input" oninput="render()"></div>
+                        <div><label class="tool-label">Name (Hindi - Auto)</label><input type="text" id="in_hi_name" class="tool-input" oninput="render()"></div>
                         <div><label class="tool-label">DOB</label><input type="text" id="in_dob" class="tool-input" oninput="render()"></div>
                         <div>
                             <label class="tool-label">Gender</label>
@@ -164,27 +192,30 @@
                         </div>
                     </div>
                     
-                    <div class="mt-2"><label class="tool-label">Address (English - Start with C/O)</label><textarea id="in_addr_en" rows="2" class="tool-input" oninput="handleAddrInput(this.value)"></textarea></div>
-                    <div class="mt-2"><label class="tool-label">Address (Hindi)</label><textarea id="in_addr_hi" rows="2" class="tool-input" oninput="render()"></textarea></div>
-                    <div class="mt-2"><label class="tool-label">User Photo</label><input type="file" onchange="loadPhoto(event)" class="tool-input"></div>
+                    <div class="mt-2"><label class="tool-label">Address (English)</label><textarea id="in_addr_en" rows="2" class="tool-input" oninput="handleAddrInput(this.value)"></textarea></div>
+                    <div class="mt-2"><label class="tool-label">Address (Hindi - Auto)</label><textarea id="in_addr_hi" rows="2" class="tool-input" oninput="render()"></textarea></div>
+                    <div class="mt-2 no-print"><label class="tool-label">User Photo</label><input type="file" onchange="loadPhoto(event)" class="tool-input"></div>
 
-                    <button id="btn-print-pdf" onclick="savePdf()" class="w-full bg-gradient-to-r from-red-600 to-red-500 text-white py-4 rounded-xl font-black uppercase shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all mt-6 text-sm tracking-widest">
-                        <i class="fas fa-file-pdf mr-2"></i> Download PDF
+                    <button id="btn-print-pdf" onclick="savePdf()" class="w-full bg-gradient-to-r from-red-600 to-red-500 text-white py-4 rounded-xl font-black uppercase shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all mt-6 text-sm tracking-widest no-print">
+                        <i class="fas fa-file-pdf mr-2"></i> Download Card Only
+                    </button>
+                    
+                    <button onclick="window.print()" class="w-full bg-slate-800 text-white py-3 rounded-xl font-bold uppercase mt-3 text-xs shadow-md hover:bg-slate-900 transition flex justify-center items-center gap-2 no-print">
+                        <i class="fas fa-print"></i> Print Full Receipt / Save as PDF
                     </button>
                 </div>
 
-                <div style="width:100%; overflow:hidden;">
+                <div style="width:100%; overflow:hidden;" class="no-print">
                     <div id="preview-scaler">
                         <div class="card-box" id="front-view">
                             <img id="front_bg_img" class="template-img" src="./pvc1f.jpg" alt="Front">
-                            
                             <div class="side-date" id="out_date">Aadhaar no. issued: 26/03/2016</div>
                             <img id="out_photo" class="user-pic" src="">
                             <div class="text-details">
                                 <span class="txt-name-en" id="out_name_en">NAME HERE</span>
                                 <span class="txt-name-hi" id="out_name_hi">नाम यहाँ</span>
                                 <span class="txt-dob">जन्मतिथि/DOB: <span id="out_dob">00/00/0000</span></span>
-                                <span class="txt-gender" id="out_gender">Male / पुरुष</span>
+                                <span class="txt-gender" id="out_gender">Male / <span class="gender-hi">पुरुष</span></span>
                             </div>
                             <div class="num-big" id="out_uid">0000 0000 0000</div>
                         </div>
@@ -193,7 +224,7 @@
                             <img id="back_bg_img" class="template-img" src="./pvc2.jpg" alt="Back">
                             <div class="back-container">
                                 <div class="addr-group"><span class="addr-label">पता:</span><span class="addr-text" id="out_addr_hi">...</span></div>
-                                <div class="addr-group"><span class="addr-label">Address:</span><span class="addr-text" id="out_addr_en">...</span></div>
+                                <div class="addr-group"><span class="addr-label" style="font-family: 'Roboto', sans-serif;">Address:</span><span class="addr-text addr-text-en" id="out_addr_en">...</span></div>
                             </div>
                             <div class="num-big" id="out_uid_b" style="bottom: 50px;">0000 0000 0000</div>
                         </div>
@@ -202,20 +233,18 @@
             </div>
         </div>
 
-        <div id="page-blacklist" class="page-content hidden">
+        <div id="page-blacklist" class="page-content hidden no-print">
             <div class="text-center mb-12"><h2 class="text-4xl font-black text-red-600 uppercase italic tracking-tighter mb-4">Scammer Database</h2><button onclick="openReportModal()" class="bg-red-600 text-white px-12 py-5 rounded-full font-black text-sm uppercase shadow-2xl">+ Report Fraud</button></div>
             <div id="blacklist-list-container" class="grid gap-6 md:grid-cols-2"></div>
         </div>
 
-        <div id="page-admin" class="page-content hidden max-w-2xl mx-auto">
-            <div id="admin-auth-panel" class="bg-white p-12 rounded-[3rem] shadow-2xl border-4 border-slate-900 text-center">
+        <div id="page-admin" class="page-content hidden max-w-2xl mx-auto no-print">
+             <div id="admin-auth-panel" class="bg-white p-12 rounded-[3rem] shadow-2xl border-4 border-slate-900 text-center">
                 <i class="fas fa-user-shield text-6xl text-slate-900 mb-6"></i><h3 class="text-2xl font-black mb-8 uppercase">Admin Login</h3>
                 <input type="password" id="admin-login-pin" placeholder="••••" class="w-full p-5 border-4 border-slate-100 rounded-3xl mb-8 text-center text-4xl font-black outline-none">
                 <button onclick="handleAdminLogin()" class="w-full bg-slate-950 text-white py-5 rounded-3xl font-black uppercase text-sm shadow-xl hover:bg-yellow-500 hover:text-black transition">Login</button>
             </div>
-            
             <div id="admin-main-dashboard" class="hidden space-y-8">
-                
                 <div class="grid grid-cols-2 gap-4">
                     <div class="bg-gradient-to-br from-green-500 to-green-700 p-6 rounded-[2rem] text-white shadow-xl">
                         <h4 class="text-xs font-black uppercase tracking-widest opacity-80">Total Downloads</h4>
@@ -227,25 +256,17 @@
                          <button onclick="updateNotice()" class="mt-2 bg-slate-900 text-white px-3 py-1 rounded text-[10px] font-bold uppercase w-full">Save</button>
                     </div>
                 </div>
-
                 <div class="bg-white p-6 rounded-[2rem] border-2 border-yellow-400 shadow-xl relative overflow-hidden">
                     <div class="absolute top-0 right-0 bg-yellow-400 text-black px-4 py-1 font-bold text-[10px] uppercase rounded-bl-xl">Admin Only</div>
                     <h4 class="text-lg font-black uppercase text-slate-900 mb-4">Upload Custom Template</h4>
-                    
                     <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="tool-label">Front Image</label>
-                            <input type="file" onchange="saveTemplate(event, 'front')" class="tool-input">
-                        </div>
-                        <div>
-                            <label class="tool-label">Back Image</label>
-                            <input type="file" onchange="saveTemplate(event, 'back')" class="tool-input">
-                        </div>
+                        <div><label class="tool-label">Front Image</label><input type="file" onchange="saveTemplate(event, 'front')" class="tool-input"></div>
+                        <div><label class="tool-label">Back Image</label><input type="file" onchange="saveTemplate(event, 'back')" class="tool-input"></div>
                     </div>
                     <button onclick="resetTemplates()" class="text-red-600 text-xs font-bold mt-2 underline w-full text-right">Reset to Original</button>
                 </div>
-
-                <div class="bg-blue-900 p-8 rounded-[2.5rem] text-white shadow-2xl flex justify-between items-center border-b-8 border-blue-950">
+                
+                 <div class="bg-blue-900 p-8 rounded-[2.5rem] text-white shadow-2xl flex justify-between items-center border-b-8 border-blue-950">
                     <div><h4 class="text-lg font-black uppercase">Auto-Approval</h4></div><label class="switch"><input type="checkbox" id="approval-toggle-switch" onchange="modifySystemMode()"><span class="slider"></span></label>
                 </div>
                 <div id="admin-pending-list" class="bg-white p-8 rounded-[2rem] shadow-xl space-y-4"></div>
@@ -253,7 +274,7 @@
             </div>
         </div>
 
-        <div id="page-register" class="page-content hidden max-w-xl mx-auto">
+        <div id="page-register" class="page-content hidden max-w-xl mx-auto no-print">
             <div class="bg-white p-10 rounded-[3rem] shadow-2xl border-t-[15px] border-blue-900">
                 <h2 class="text-3xl font-black text-blue-950 mb-10 uppercase italic text-center">Register Group</h2>
                 <div class="space-y-6">
@@ -264,9 +285,9 @@
             </div>
         </div>
     </main>
-
-    <div id="report-modal-overlay" class="fixed inset-0 bg-slate-950/95 hidden z-[200] flex items-center justify-center p-4 backdrop-blur-md">
-        <div class="bg-white p-10 rounded-[3rem] w-full max-w-md border-t-[20px] border-red-600 shadow-2xl relative">
+    
+    <div id="report-modal-overlay" class="fixed inset-0 bg-slate-950/95 hidden z-[200] flex items-center justify-center p-4 backdrop-blur-md no-print">
+         <div class="bg-white p-10 rounded-[3rem] w-full max-w-md border-t-[20px] border-red-600 shadow-2xl relative">
             <button onclick="closeReportModal()" class="absolute right-6 top-6 text-gray-300 hover:text-red-600"><i class="fas fa-times text-2xl"></i></button>
             <h3 class="text-2xl font-black text-red-600 mb-8 uppercase italic tracking-tighter">Report Fraud</h3>
             <div class="space-y-5">
@@ -284,9 +305,8 @@
         const client = supabase.createClient(HUB_URL, HUB_KEY);
         let autoApproveMode = true;
 
-        // --- FIXED: DEFAULT TEMPLATES CORRECTED ---
-        const DEFAULT_FRONT = "./pvc1f.jpg"; // Yaha Galti Thi
-        const DEFAULT_BACK = "./pvc2.jpg";   // Yaha Galti Thi
+        const DEFAULT_FRONT = "./pvc1f.jpg";
+        const DEFAULT_BACK = "./pvc2.jpg";
 
         function initApp() {
             loadSavedTemplates();
@@ -294,7 +314,48 @@
             fetchNotice();
         }
 
-        // --- NAVIGATION ---
+        // --- TRANSLATION LOGIC (DIRECT GOOGLE API - NO BACKEND NEEDED) ---
+        function handleNameInput(val) {
+             document.getElementById('out_name_en').innerText = val || "NAME HERE";
+             autoTrans(val, 'in_hi_name');
+        }
+        function handleAddrInput(val) {
+            document.getElementById('out_addr_en').innerText = val || "...";
+            autoTrans(val, 'in_addr_hi');
+        }
+
+        async function autoTrans(text, targetId) {
+            if(!text) return;
+            try {
+                // Using Google Input Tools API directly - works on frontend
+                const res = await fetch(`https://inputtools.google.com/request?text=${encodeURIComponent(text)}&itc=hi-t-i0-und&num=1`);
+                const data = await res.json();
+                if(data && data[1] && data[1][0] && data[1][0][1]) {
+                    document.getElementById(targetId).value = data[1][0][1][0];
+                    render(); // Update preview immediately
+                }
+            } catch(e) {
+                console.log("Transliteration failed, using original text");
+                document.getElementById(targetId).value = text;
+                render();
+            }
+        }
+
+        function render() {
+            let uid = document.getElementById('in_uid').value;
+            let fmtUid = uid.replace(/\s+/g, '').replace(/(\d{4})/g, '$1 ').trim();
+            document.getElementById('out_uid').innerText = fmtUid || "0000 0000 0000";
+            document.getElementById('out_uid_b').innerText = fmtUid || "0000 0000 0000";
+            document.getElementById('out_name_en').innerText = document.getElementById('in_en_name').value || "NAME HERE";
+            document.getElementById('out_name_hi').innerText = document.getElementById('in_hi_name').value || "नाम यहाँ";
+            document.getElementById('out_dob').innerText = document.getElementById('in_dob').value || "00/00/0000";
+            document.getElementById('out_gender').innerHTML = (document.getElementById('in_gen').value === "Male / पुरुष") ? 'Male / <span class="gender-hi">पुरुष</span>' : 'Female / <span class="gender-hi">महिला</span>';
+            document.getElementById('out_addr_en').innerText = document.getElementById('in_addr_en').value || "...";
+            document.getElementById('out_addr_hi').innerText = document.getElementById('in_addr_hi').value || "...";
+            document.getElementById('out_date').innerText = "Aadhaar no. issued: " + document.getElementById('in_date').value;
+        }
+
+        // --- NAVIGATION & OTHER FUNCTIONS ---
         function changePage(pageId) {
             document.querySelectorAll('.page-content').forEach(view => view.classList.add('hidden'));
             document.getElementById('page-' + pageId).classList.remove('hidden');
@@ -307,7 +368,6 @@
         function closeReportModal() { document.getElementById('report-modal-overlay').classList.add('hidden'); }
         setInterval(() => { document.getElementById('full-time').innerText = new Date().toLocaleTimeString('en-US', { hour12: false }); }, 1000);
 
-        // --- SEARCH & HUB LOGIC ---
         function executeUniversalSearch() {
             const searchTerm = document.getElementById('global-search-bar').value.replace(/\s+/g, '').toLowerCase();
             const allCards = document.querySelectorAll('.group-item-card, .blacklist-item-card');
@@ -349,8 +409,6 @@
             await client.from('blacklist').insert([{ phone_number: id, reason: reason }]);
             closeReportModal(); fetchScammerRecords();
         }
-
-        // --- ADMIN LOGIC ---
         function handleAdminLogin() {
             if(document.getElementById('admin-login-pin').value === '8102') {
                 document.getElementById('admin-auth-panel').classList.add('hidden');
@@ -370,21 +428,10 @@
         async function approveAdminHub(id) { await client.from('railway_groups').update({ is_approved: true }).eq('id', id); loadAdminConsoleData(); }
         async function deleteAdminRecord(table, id) { if(confirm("Delete?")) await client.from(table).delete().eq('id', id); loadAdminConsoleData(); }
 
-        // --- STATS & NOTICE FUNCTIONS ---
-        async function incrementDownloadCount() {
-            try {
-                const { data: current } = await client.from('site_stats').select('count_value').eq('metric_name', 'total_downloads').single();
-                if(current) {
-                    await client.from('site_stats').update({ count_value: current.count_value + 1 }).eq('metric_name', 'total_downloads');
-                }
-                updateAdminStatsView();
-            } catch(e) {}
-        }
         async function updateAdminStatsView() {
             const { data } = await client.from('site_stats').select('count_value').eq('metric_name', 'total_downloads').single();
             if(data) document.getElementById('admin-download-count').innerText = data.count_value;
         }
-
         async function fetchNotice() {
             const { data } = await client.from('site_config').select('config_value').eq('config_key', 'tool_notice').single();
             if(data && data.config_value) {
@@ -393,13 +440,16 @@
         }
         async function updateNotice() {
             const newText = document.getElementById('admin-notice-input').value;
-            if(!newText) return;
             await client.from('site_config').update({ config_value: newText }).eq('config_key', 'tool_notice');
-            alert("Notice Updated!");
-            fetchNotice();
+            alert("Notice Updated!"); fetchNotice();
         }
-
-        // --- TEMPLATE LOGIC ---
+        async function incrementDownloadCount() {
+            try {
+                const { data: current } = await client.from('site_stats').select('count_value').eq('metric_name', 'total_downloads').single();
+                if(current) await client.from('site_stats').update({ count_value: current.count_value + 1 }).eq('metric_name', 'total_downloads');
+                updateAdminStatsView();
+            } catch(e) {}
+        }
         function saveTemplate(e, type) {
             let file = e.target.files[0]; if(!file) return;
             let reader = new FileReader();
@@ -410,102 +460,35 @@
             };
             reader.readAsDataURL(file);
         }
-
         function resetTemplates() {
-            localStorage.removeItem('front_bg_custom');
-            localStorage.removeItem('back_bg_custom');
+            localStorage.removeItem('front_bg_custom'); localStorage.removeItem('back_bg_custom');
             document.getElementById('front_bg_img').src = DEFAULT_FRONT;
             document.getElementById('back_bg_img').src = DEFAULT_BACK;
-            alert("Reset to Original Templates");
+            alert("Reset to Original");
         }
-
         function loadSavedTemplates() {
-            let frontBg = localStorage.getItem('front_bg_custom');
-            let backBg = localStorage.getItem('back_bg_custom');
+            let frontBg = localStorage.getItem('front_bg_custom'); let backBg = localStorage.getItem('back_bg_custom');
             document.getElementById('front_bg_img').src = frontBg || DEFAULT_FRONT;
             document.getElementById('back_bg_img').src = backBg || DEFAULT_BACK;
         }
-
-        function handleNameInput(val) {
-             document.getElementById('out_name_en').innerText = val || "NAME HERE";
-             autoTrans(val, 'in_hi_name');
-        }
-
-        function handleAddrInput(val) {
-            document.getElementById('out_addr_en').innerText = val || "...";
-            autoTrans(val, 'in_addr_hi');
-        }
-
-        async function autoTrans(text, targetId) {
-            if(!text) return;
-            try {
-                const res = await fetch(`/api/translate?text=${encodeURI(text)}`);
-                const data = await res.json();
-                if(data && data[1][0][1][0]) { 
-                    document.getElementById(targetId).value = data[1][0][1][0]; 
-                    render(); 
-                }
-            } catch(e) { document.getElementById(targetId).value = text; render(); }
-        }
-
-        function render() {
-            let uid = document.getElementById('in_uid').value;
-            let fmtUid = uid.replace(/\s+/g, '').replace(/(\d{4})/g, '$1 ').trim();
-            document.getElementById('out_uid').innerText = fmtUid || "0000 0000 0000";
-            document.getElementById('out_uid_b').innerText = fmtUid || "0000 0000 0000";
-            document.getElementById('out_name_en').innerText = document.getElementById('in_en_name').value || "NAME HERE";
-            document.getElementById('out_name_hi').innerText = document.getElementById('in_hi_name').value || "नाम यहाँ";
-            document.getElementById('out_dob').innerText = document.getElementById('in_dob').value || "00/00/0000";
-            document.getElementById('out_gender').innerText = document.getElementById('in_gen').value;
-            document.getElementById('out_addr_en').innerText = document.getElementById('in_addr_en').value || "...";
-            document.getElementById('out_addr_hi').innerText = document.getElementById('in_addr_hi').value || "...";
-            document.getElementById('out_date').innerText = "Aadhaar no. issued: " + document.getElementById('in_date').value;
-        }
-
         function loadPhoto(e) {
             let r = new FileReader();
             r.onload = function(){ document.getElementById('out_photo').src = r.result; }
             r.readAsDataURL(e.target.files[0]);
         }
 
+        // --- CARD ONLY PDF (High Quality) ---
         function savePdf() {
             const btn = document.getElementById('btn-print-pdf');
             const originalText = btn.innerHTML;
             btn.innerHTML = "Processing...";
-            
             const element = document.getElementById('preview-scaler');
             const clone = element.cloneNode(true);
-            
-            clone.style.transform = "scale(1)";
-            clone.style.margin = "0";
-            clone.style.position = "absolute";
-            clone.style.left = "-9999px"; 
-            clone.style.top = "0";
-            clone.style.width = "960px"; 
-            clone.style.background = "#fff";
-
+            clone.style.transform = "scale(1)"; clone.style.margin = "0"; clone.style.position = "absolute"; clone.style.left = "-9999px"; clone.style.top = "0"; clone.style.width = "960px"; clone.style.background = "#fff";
             document.body.appendChild(clone);
-
-            var opt = {
-                margin: 0,
-                filename: 'Aadhar_HD.pdf',
-                image: { type: 'jpeg', quality: 0.95 },
-                html2canvas: { 
-                    scale: 2, 
-                    useCORS: true, 
-                    scrollY: 0,
-                    windowWidth: 1000
-                },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
+            var opt = { margin: 0, filename: 'Aadhar_HD.pdf', image: { type: 'jpeg', quality: 0.95 }, html2canvas: { scale: 2, useCORS: true, scrollY: 0, windowWidth: 1000 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
             html2pdf().set(opt).from(clone).save().then(() => {
-                incrementDownloadCount(); // Count Badhao
-                document.body.removeChild(clone);
-                btn.innerHTML = originalText;
-            }).catch(err => {
-                btn.innerHTML = "Failed. Retry";
-                document.body.removeChild(clone);
+                incrementDownloadCount(); document.body.removeChild(clone); btn.innerHTML = originalText;
             });
         }
     </script>
