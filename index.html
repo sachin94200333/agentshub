@@ -14,53 +14,30 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     
     <style>
-        /* --- 1. GLOBAL THEME (AGENTS HUB STYLE) --- */
-        :root {
-            --primary-blue: #1e3a8a;
-            --danger-red: #dc2626;
-            --rail-yellow: #facc15;
-        }
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
+        /* --- GLOBAL THEME --- */
+        :root { --primary-blue: #1e3a8a; --danger-red: #dc2626; --rail-yellow: #facc15; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); min-height: 100vh; overflow-x: hidden; }
 
-        /* --- 2. ANIMATIONS --- */
+        /* --- ANIMATIONS --- */
         @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
         .animate-marquee { animation: marquee 25s linear infinite; }
-        
         @keyframes glow { from { box-shadow: 0 0 10px #ff416c; } to { box-shadow: 0 0 25px #ff4b2b, 0 0 10px #ff416c; } }
         .manual-btn-glow {
-            background: linear-gradient(45deg, #ff416c, #ff4b2b);
-            color: white; border: none; border-radius: 50px; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(255, 75, 43, 0.4);
-            animation: glow 1.5s infinite alternate;
-            display: inline-block; font-weight: 900; text-transform: uppercase;
-            padding: 15px 30px; font-size: 14px; letter-spacing: 1px;
-            transition: transform 0.2s;
+            background: linear-gradient(45deg, #ff416c, #ff4b2b); color: white; border: none; border-radius: 50px; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 75, 43, 0.4); animation: glow 1.5s infinite alternate;
+            display: inline-block; font-weight: 900; text-transform: uppercase; padding: 15px 30px; font-size: 14px; letter-spacing: 1px; transition: transform 0.2s;
         }
         .manual-btn-glow:hover { transform: scale(1.05); }
 
-        /* --- 3. UI CARDS (Hub Style) --- */
-        .group-item-card {
-            background: white; border-radius: 24px; padding: 20px; margin-bottom: 16px;
-            border-left: 10px solid var(--primary-blue); display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-        .digital-clock {
-            font-family: 'Orbitron', sans-serif; background: #0f172a; color: var(--rail-yellow);
-            padding: 10px 20px; border-radius: 18px; border: 2px solid var(--rail-yellow);
-            box-shadow: 0 0 20px rgba(250, 204, 21, 0.3); display: flex; align-items: center; gap: 10px;
-        }
+        /* --- UI CARDS --- */
+        .group-item-card { background: white; border-radius: 24px; padding: 20px; margin-bottom: 16px; border-left: 10px solid var(--primary-blue); display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .digital-clock { font-family: 'Orbitron', sans-serif; background: #0f172a; color: var(--rail-yellow); padding: 10px 20px; border-radius: 18px; border: 2px solid var(--rail-yellow); box-shadow: 0 0 20px rgba(250, 204, 21, 0.3); display: flex; align-items: center; gap: 10px; }
         .switch { position: relative; display: inline-block; width: 60px; height: 30px; } .switch input { opacity: 0; width: 0; height: 0; } .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #cbd5e1; transition: .4s; border-radius: 34px; } .slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; } input:checked + .slider { background-color: var(--primary-blue); } input:checked + .slider:before { transform: translateX(30px); }
 
-        /* --- 4. AADHAR TOOL CSS (Strict Isolation) --- */
-        /* Note: We use specific classes to avoid conflicts with Tailwind */
+        /* --- AADHAR TOOL CSS --- */
         .aadhar-tool-wrapper { font-family: sans-serif; color: black; display: flex; flex-direction: column; align-items: center; }
         
-        /* The Card Container (960px Base for 4K) */
+        /* Card Box: Fixed 960px width for HD PDF generation */
         .card-box { 
             width: 960px; height: 604px; 
             background-color: white; border-radius: 16px; position: relative; 
@@ -69,43 +46,50 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
 
-        /* Scaler to fit 960px card on mobile screens */
+        /* --- MOBILE VIEW FIX (Scaler) --- */
+        /* Isse card mobile par upar dikhega, niche nahi bhagega */
         #preview-scaler { 
             transform-origin: top center; 
             width: 960px; 
             margin-left: auto; margin-right: auto;
-            /* Default scale for mobile */
-            transform: scale(0.34); margin-bottom: -380px;
+            /* Mobile Specific Scale */
+            transform: scale(0.34); 
+            margin-bottom: -400px; /* Niche ki jagah kam karega */
+            margin-top: -30px;     /* Card ko upar khichega */
         }
         @media(min-width: 768px) { 
-            #preview-scaler { transform: scale(0.5); margin-bottom: -300px; } 
+            #preview-scaler { transform: scale(0.5); margin-bottom: -300px; margin-top: 0; } 
         }
 
-        /* Elements inside Aadhar Card */
-        .template-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
-        .user-pic { position: absolute; top: 136px; left: 90px; width: 176px; height: 220px; background: #f0f0f0; z-index: 10; object-fit: cover; }
-        .side-date { position: absolute; left: 56px; top: 460px; transform: rotate(-90deg); transform-origin: left bottom; font-size: 21px; font-weight: 600; color: #000; white-space: nowrap; letter-spacing: 0.4px; z-index: 10; font-family: Arial, sans-serif; }
-        .text-details { position: absolute; top: 130px; left: 300px; color: #000; line-height: 1.25; z-index: 10; text-align: left; }
+        /* Elements Z-INDEX FIX */
+        .template-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1 !important; pointer-events: none; }
+        
+        /* Text Elements - High Z-Index to stay visible */
+        .user-pic { position: absolute; top: 136px; left: 90px; width: 176px; height: 220px; background: #f0f0f0; z-index: 50; object-fit: cover; }
+        .side-date { position: absolute; left: 56px; top: 460px; transform: rotate(-90deg); transform-origin: left bottom; font-size: 21px; font-weight: 600; color: #000; white-space: nowrap; letter-spacing: 0.4px; z-index: 50; font-family: Arial, sans-serif; }
+        .text-details { position: absolute; top: 130px; left: 300px; color: #000; line-height: 1.25; z-index: 50; text-align: left; }
+        
         .txt-name-en { font-size: 30px; font-weight: 700; display: block; margin-bottom: 4px; }
         .txt-name-hi { font-size: 28px; font-family: 'Arya', sans-serif; display: block; margin-bottom: 8px; }
         .txt-dob { font-size: 27px; font-weight: 500; display: block; margin-bottom: 4px; }
         .txt-gender { font-size: 27px; font-weight: 500; display: block; }
-        .num-big { position: absolute; bottom: 50px; width: 100%; text-align: center; font-size: 52px; font-weight: 700; letter-spacing: 2px; color: #000; font-family: 'Courier New', monospace; z-index: 10; }
-        .back-container { position: absolute; top: 130px; left: 40px; width: 500px; text-align: left; color: #000; z-index: 10; }
+        
+        .num-big { position: absolute; bottom: 50px; width: 100%; text-align: center; font-size: 52px; font-weight: 700; letter-spacing: 2px; color: #000; font-family: 'Courier New', monospace; z-index: 50; }
+        
+        .back-container { position: absolute; top: 130px; left: 40px; width: 500px; text-align: left; color: #000; z-index: 50; }
         .addr-group { margin-bottom: 24px; }
         .addr-label { display: block; font-size: 26px; font-weight: bold; margin-bottom: 4px; }
         .addr-text { display: block; font-size: 23px; line-height: 1.35; word-wrap: break-word; }
 
-        /* Custom Input Styles for Tool */
         .tool-input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; margin-bottom: 8px; font-size: 14px; }
         .tool-label { font-size: 11px; font-weight: bold; text-transform: uppercase; color: #555; margin-bottom: 2px; display: block; }
     </style>
 </head>
-<body onload="loadSavedTemplates()">
+<body onload="initApp()">
 
     <div class="bg-slate-900 text-white py-3 border-b-4 border-yellow-500 sticky top-0 z-[60] overflow-hidden">
         <div class="animate-marquee whitespace-nowrap inline-block font-black italic text-xs uppercase tracking-[0.1em]">
-            🛑 OFFICIAL NOTICE: VERIFY ALL AGENTS BEFORE PAYMENT. USE THE BLACKLIST SEARCH TO PROTECT YOURSELF. REPORT ANY SUSPICIOUS ACTIVITY. 🛑
+            🛑 OFFICIAL NOTICE: VERIFY ALL AGENTS BEFORE PAYMENT. USE THE BLACKLIST SEARCH TO PROTECT YOURSELF. 🛑
         </div>
     </div>
 
@@ -136,34 +120,27 @@
     <main class="container mx-auto p-4 max-w-5xl mt-6 mb-32">
         
         <div id="page-groups" class="page-content">
-            
             <div class="mb-10 text-center">
                 <div class="mb-8">
                     <button onclick="changePage('tool-aadhar')" class="manual-btn-glow">
                         <i class="fas fa-id-card mr-2"></i> Open Manual Aadhar Generator
                     </button>
                 </div>
-
                 <div class="relative max-w-3xl mx-auto group">
                     <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 to-red-600 rounded-3xl blur opacity-25 group-focus-within:opacity-100 transition duration-1000"></div>
                     <div class="relative flex items-center bg-white rounded-2xl shadow-2xl p-2 border-2 border-white">
                         <i class="fas fa-search ml-4 text-gray-400 text-xl"></i>
-                        <input type="text" id="global-search-bar" onkeyup="executeUniversalSearch()" placeholder="Search by Group Name, Phone, or Scammer ID..." class="w-full p-4 pl-4 rounded-xl outline-none font-black text-slate-800 tracking-tight">
+                        <input type="text" id="global-search-bar" onkeyup="executeUniversalSearch()" placeholder="Search Hub..." class="w-full p-4 pl-4 rounded-xl outline-none font-black text-slate-800">
                     </div>
                 </div>
             </div>
 
             <div class="flex justify-between items-end mb-8">
-                <div>
-                    <h2 class="text-3xl font-black text-blue-950 uppercase italic tracking-tighter">Railway Directories</h2>
-                    <p class="text-[10px] font-bold text-gray-400 uppercase">Verified active whatsapp group links</p>
-                </div>
-                <button onclick="changePage('register')" class="bg-blue-950 text-white px-8 py-4 rounded-2xl font-black text-xs shadow-2xl hover:scale-105 transition">+ ADD MY GROUP</button>
+                <div><h2 class="text-3xl font-black text-blue-950 uppercase italic">Railway Directories</h2></div>
+                <button onclick="changePage('register')" class="bg-blue-950 text-white px-8 py-4 rounded-2xl font-black text-xs shadow-2xl hover:scale-105 transition">+ ADD GROUP</button>
             </div>
-
             <div id="groups-list-container" class="space-y-4"></div>
         </div>
-
 
         <div id="page-tool-aadhar" class="page-content hidden">
             
@@ -172,14 +149,14 @@
                     <i class="fas fa-arrow-left"></i> Back to Hub
                 </button>
                 <div class="text-right">
-                    <h2 class="text-xl font-black text-blue-950 uppercase italic tracking-tighter">4K Generator</h2>
-                    <span class="text-[10px] font-bold text-green-600 uppercase tracking-widest">Ghost Mode Active ●</span>
+                    <h2 class="text-xl font-black text-blue-950 uppercase italic tracking-tighter">HD Generator</h2>
+                    <span class="text-[10px] font-bold text-green-600 uppercase tracking-widest">Optimized Mode ●</span>
                 </div>
             </div>
 
             <div class="aadhar-tool-wrapper">
                 
-                <div class="bg-white p-6 rounded-3xl shadow-xl border border-gray-100 w-full max-w-2xl mb-8 relative overflow-hidden">
+                <div class="bg-white p-6 rounded-3xl shadow-xl border border-gray-100 w-full max-w-2xl mb-8 relative">
                     <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-600 to-purple-600"></div>
                     
                     <button onclick="toggleToolAdmin()" class="bg-slate-900 text-white w-full py-2 rounded-lg mb-6 font-bold text-xs uppercase hover:bg-slate-800 transition">
@@ -187,15 +164,16 @@
                     </button>
                     
                     <div id="tool-admin-panel" style="display:none;" class="bg-yellow-50 p-4 rounded-xl border border-yellow-200 mb-4">
-                        <div class="font-bold text-xs uppercase mb-2 text-yellow-800">Upload HD Images</div>
-                        <label class="tool-label">Front (PNG/JPG)</label><input type="file" onchange="saveTemplate(event, 'front')" class="tool-input">
-                        <label class="tool-label">Back (PNG/JPG)</label><input type="file" onchange="saveTemplate(event, 'back')" class="tool-input">
+                        <div class="font-bold text-xs uppercase mb-2 text-yellow-800">Set Custom Templates</div>
+                        <label class="tool-label">Front (Upload)</label><input type="file" onchange="saveTemplate(event, 'front')" class="tool-input">
+                        <label class="tool-label">Back (Upload)</label><input type="file" onchange="saveTemplate(event, 'back')" class="tool-input">
+                        <button onclick="resetTemplates()" class="text-red-600 text-xs font-bold mt-2 underline">Reset to Default</button>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div><label class="tool-label">Aadhar Number</label><input type="text" id="in_uid" class="tool-input" oninput="render()"></div>
                         <div><label class="tool-label">Issue Date</label><input type="text" id="in_date" value="26/03/2016" class="tool-input" oninput="render()"></div>
-                        <div><label class="tool-label">Name (English)</label><input type="text" id="in_en_name" class="tool-input" oninput="autoTrans(this.value, 'in_hi_name')"></div>
+                        <div><label class="tool-label">Name (Eng)</label><input type="text" id="in_en_name" class="tool-input" oninput="handleNameInput(this.value)"></div>
                         <div><label class="tool-label">Name (Hindi)</label><input type="text" id="in_hi_name" class="tool-input" oninput="render()"></div>
                         <div><label class="tool-label">DOB</label><input type="text" id="in_dob" class="tool-input" oninput="render()"></div>
                         <div>
@@ -207,70 +185,72 @@
                         </div>
                     </div>
                     
-                    <div class="mt-2"><label class="tool-label">Address (English - Start with C/O)</label><textarea id="in_addr_en" rows="2" class="tool-input" oninput="autoTrans(this.value, 'in_addr_hi')"></textarea></div>
+                    <div class="mt-2"><label class="tool-label">Address (English - Start with C/O)</label><textarea id="in_addr_en" rows="2" class="tool-input" oninput="handleAddrInput(this.value)"></textarea></div>
                     <div class="mt-2"><label class="tool-label">Address (Hindi)</label><textarea id="in_addr_hi" rows="2" class="tool-input" oninput="render()"></textarea></div>
                     <div class="mt-2"><label class="tool-label">User Photo</label><input type="file" onchange="loadPhoto(event)" class="tool-input"></div>
 
                     <button id="btn-print-pdf" onclick="savePdf()" class="w-full bg-gradient-to-r from-red-600 to-red-500 text-white py-4 rounded-xl font-black uppercase shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all mt-6 text-sm tracking-widest">
-                        <i class="fas fa-file-pdf mr-2"></i> Download Ultra HD PDF
+                        <i class="fas fa-file-pdf mr-2"></i> Download PDF
                     </button>
                 </div>
 
-               <div class="card-box" id="front-view">
-    <img id="front_bg_img" class="template-img" src="https://i.ibb.co/NdLV3y52/pvc1f.jpg" alt="Front Template">
-    
-    <div class="side-date" id="out_date">Aadhaar no. issued: 26/03/2016</div>
-    ...
-</div>
+                <div style="width:100%; overflow:hidden;">
+                    <div id="preview-scaler">
+                        <div class="card-box" id="front-view">
+                            <img id="front_bg_img" class="template-img" src="https://i.ibb.co/NdLV3y52/pvc1f.jpg" alt="Front" crossorigin="anonymous">
+                            
+                            <div class="side-date" id="out_date">Aadhaar no. issued: 26/03/2016</div>
+                            <img id="out_photo" class="user-pic" src="">
+                            <div class="text-details">
+                                <span class="txt-name-en" id="out_name_en">NAME HERE</span>
+                                <span class="txt-name-hi" id="out_name_hi">नाम यहाँ</span>
+                                <span class="txt-dob">जन्मतिथि/DOB: <span id="out_dob">00/00/0000</span></span>
+                                <span class="txt-gender" id="out_gender">Male / पुरुष</span>
+                            </div>
+                            <div class="num-big" id="out_uid">0000 0000 0000</div>
+                        </div>
 
-<div class="card-box" id="back-view">
-    <img id="back_bg_img" class="template-img" src="https://i.ibb.co/KjM9gkLM/pvc2.jpg" alt="Back Template">
-    
-    <div class="back-container">
-        ...
-    </div>
-</div>
+                        <div class="card-box" id="back-view">
+                            <img id="back_bg_img" class="template-img" src="https://i.ibb.co/KjM9gkLM/pvc2.jpg" alt="Back" crossorigin="anonymous">
 
+                            <div class="back-container">
+                                <div class="addr-group"><span class="addr-label">पता:</span><span class="addr-text" id="out_addr_hi">...</span></div>
+                                <div class="addr-group"><span class="addr-label">Address:</span><span class="addr-text" id="out_addr_en">...</span></div>
+                            </div>
+                            <div class="num-big" id="out_uid_b" style="bottom: 50px;">0000 0000 0000</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div id="page-blacklist" class="page-content hidden">
-            <div class="text-center mb-12">
-                <h2 class="text-4xl font-black text-red-600 uppercase italic tracking-tighter mb-4">Scammer Database</h2>
-                <button onclick="openReportModal()" class="bg-red-600 text-white px-12 py-5 rounded-full font-black text-sm uppercase shadow-2xl hover:bg-red-700 transition">+ Report a Fraudster</button>
-            </div>
+            <div class="text-center mb-12"><h2 class="text-4xl font-black text-red-600 uppercase italic tracking-tighter mb-4">Scammer Database</h2><button onclick="openReportModal()" class="bg-red-600 text-white px-12 py-5 rounded-full font-black text-sm uppercase shadow-2xl">+ Report Fraud</button></div>
             <div id="blacklist-list-container" class="grid gap-6 md:grid-cols-2"></div>
         </div>
 
         <div id="page-admin" class="page-content hidden max-w-2xl mx-auto">
             <div id="admin-auth-panel" class="bg-white p-12 rounded-[3rem] shadow-2xl border-4 border-slate-900 text-center">
-                <i class="fas fa-user-shield text-6xl text-slate-900 mb-6"></i>
-                <h3 class="text-2xl font-black mb-8 uppercase italic tracking-tighter">Secure Admin Login</h3>
-                <input type="password" id="admin-login-pin" placeholder="••••" class="w-full p-5 border-4 border-slate-100 rounded-3xl mb-8 text-center text-4xl font-black tracking-[0.5em] outline-none transition">
-                <button onclick="handleAdminLogin()" class="w-full bg-slate-950 text-white py-5 rounded-3xl font-black uppercase text-sm shadow-xl hover:bg-yellow-500 hover:text-black transition">Authenticate</button>
+                <i class="fas fa-user-shield text-6xl text-slate-900 mb-6"></i><h3 class="text-2xl font-black mb-8 uppercase">Admin Login</h3>
+                <input type="password" id="admin-login-pin" placeholder="••••" class="w-full p-5 border-4 border-slate-100 rounded-3xl mb-8 text-center text-4xl font-black outline-none">
+                <button onclick="handleAdminLogin()" class="w-full bg-slate-950 text-white py-5 rounded-3xl font-black uppercase text-sm shadow-xl hover:bg-yellow-500 hover:text-black transition">Login</button>
             </div>
             <div id="admin-main-dashboard" class="hidden space-y-8">
                 <div class="bg-blue-900 p-8 rounded-[2.5rem] text-white shadow-2xl flex justify-between items-center border-b-8 border-blue-950">
-                    <div><h4 class="text-lg font-black uppercase tracking-tight">Auto-Approval System</h4></div>
-                    <label class="switch"><input type="checkbox" id="approval-toggle-switch" onchange="modifySystemMode()"><span class="slider"></span></label>
+                    <div><h4 class="text-lg font-black uppercase">Auto-Approval</h4></div><label class="switch"><input type="checkbox" id="approval-toggle-switch" onchange="modifySystemMode()"><span class="slider"></span></label>
                 </div>
-                <div class="bg-white p-8 rounded-[2rem] shadow-xl border border-gray-100">
-                    <h3 class="text-xl font-black mb-6 uppercase italic text-blue-950 border-b-2 pb-4">Pending Approvals</h3>
-                    <div id="admin-pending-list" class="space-y-4"></div>
-                </div>
-                <div class="bg-white p-8 rounded-[2rem] shadow-xl border border-gray-100">
-                    <h3 class="text-xl font-black mb-6 uppercase italic text-red-600 border-b-2 pb-4">Live Database Records</h3>
-                    <div id="admin-live-list" class="space-y-4"></div>
-                </div>
+                <div id="admin-pending-list" class="bg-white p-8 rounded-[2rem] shadow-xl space-y-4"></div>
+                <div id="admin-live-list" class="bg-white p-8 rounded-[2rem] shadow-xl space-y-4"></div>
             </div>
         </div>
 
         <div id="page-register" class="page-content hidden max-w-xl mx-auto">
-            <div class="bg-white p-10 rounded-[3rem] shadow-2xl border-t-[15px] border-blue-900 relative">
-                <h2 class="text-3xl font-black text-blue-950 mb-10 uppercase italic text-center">Register Group Link</h2>
+            <div class="bg-white p-10 rounded-[3rem] shadow-2xl border-t-[15px] border-blue-900">
+                <h2 class="text-3xl font-black text-blue-950 mb-10 uppercase italic text-center">Register Group</h2>
                 <div class="space-y-6">
                     <input type="text" id="reg-group-name" placeholder="Group Name" class="w-full p-6 border-2 border-slate-50 rounded-3xl font-bold bg-slate-50 outline-none">
                     <input type="url" id="reg-group-link" placeholder="WhatsApp Link" class="w-full p-6 border-2 border-slate-50 rounded-3xl font-bold bg-slate-50 outline-none">
                     <button onclick="processGroupSubmission()" class="w-full bg-blue-950 text-white py-6 rounded-3xl font-black uppercase text-lg shadow-2xl">Submit</button>
-                    <button onclick="changePage('groups')" class="w-full text-gray-400 font-black uppercase text-xs">Cancel</button>
                 </div>
             </div>
         </div>
@@ -279,87 +259,81 @@
     <div id="report-modal-overlay" class="fixed inset-0 bg-slate-950/95 hidden z-[200] flex items-center justify-center p-4 backdrop-blur-md">
         <div class="bg-white p-10 rounded-[3rem] w-full max-w-md border-t-[20px] border-red-600 shadow-2xl relative">
             <button onclick="closeReportModal()" class="absolute right-6 top-6 text-gray-300 hover:text-red-600"><i class="fas fa-times text-2xl"></i></button>
-            <h3 class="text-2xl font-black text-red-600 mb-8 uppercase italic tracking-tighter">Report a Scammer</h3>
+            <h3 class="text-2xl font-black text-red-600 mb-8 uppercase italic tracking-tighter">Report Fraud</h3>
             <div class="space-y-5">
-                <input type="text" id="report-scm-id" placeholder="Phone Number" class="w-full p-5 border-2 border-slate-100 rounded-2xl font-bold bg-slate-50 outline-none">
-                <textarea id="report-scm-reason" placeholder="Reason..." class="w-full p-5 border-2 border-slate-100 rounded-2xl h-32 font-bold bg-slate-50 outline-none"></textarea>
-                <button onclick="handleScammerReport()" class="w-full bg-red-600 text-white py-6 rounded-3xl font-black uppercase text-sm shadow-xl">Post Public Warning</button>
+                <input type="text" id="report-scm-id" placeholder="Phone Number" class="w-full p-5 border-2 border-slate-100 rounded-2xl font-bold outline-none">
+                <textarea id="report-scm-reason" placeholder="Reason..." class="w-full p-5 border-2 border-slate-100 rounded-2xl h-32 font-bold outline-none"></textarea>
+                <button onclick="handleScammerReport()" class="w-full bg-red-600 text-white py-6 rounded-3xl font-black uppercase text-sm shadow-xl">Post Warning</button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- 1. CONFIGURATION ---
+        // --- CONFIG ---
         const HUB_URL = "https://bwozxpcmpciftudqcyuw.supabase.co";
         const HUB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ3b3p4cGNtcGNpZnR1ZHFjeXV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgwNTY2NzIsImV4cCI6MjA4MzYzMjY3Mn0.AO_daHPVF2Pv8AqEASh3851KeYrBVd2cQpUDV5QVfrU";
         const client = supabase.createClient(HUB_URL, HUB_KEY);
         let autoApproveMode = true;
 
-        // --- 2. CORE NAVIGATION ---
+        // Default Template URLs
+        const DEFAULT_FRONT = "https://i.ibb.co/NdLV3y52/pvc1f.jpg";
+        const DEFAULT_BACK = "https://i.ibb.co/KjM9gkLM/pvc2.jpg";
+
+        function initApp() {
+            loadSavedTemplates();
+            fetchHubGroups();
+        }
+
+        // --- NAVIGATION ---
         function changePage(pageId) {
             document.querySelectorAll('.page-content').forEach(view => view.classList.add('hidden'));
             document.getElementById('page-' + pageId).classList.remove('hidden');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            
             if(pageId === 'groups') fetchHubGroups();
             if(pageId === 'blacklist') fetchScammerRecords();
             if(pageId === 'tool-aadhar') loadSavedTemplates();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-
         function openReportModal() { document.getElementById('report-modal-overlay').classList.remove('hidden'); }
         function closeReportModal() { document.getElementById('report-modal-overlay').classList.add('hidden'); }
-        
-        setInterval(() => {
-            const date = new Date();
-            document.getElementById('full-time').innerText = date.toLocaleTimeString('en-US', { hour12: false });
-        }, 1000);
+        setInterval(() => { document.getElementById('full-time').innerText = new Date().toLocaleTimeString('en-US', { hour12: false }); }, 1000);
 
-        // --- 3. SEARCH ENGINE ---
+        // --- SEARCH ---
         function executeUniversalSearch() {
-            const rawVal = document.getElementById('global-search-bar').value;
-            const searchTerm = rawVal.replace(/\s+/g, '').toLowerCase();
+            const searchTerm = document.getElementById('global-search-bar').value.replace(/\s+/g, '').toLowerCase();
             const allCards = document.querySelectorAll('.group-item-card, .blacklist-item-card');
             allCards.forEach(card => {
-               const textContent = card.innerText.replace(/\s+/g, '').toLowerCase();
-                if(textContent.includes(searchTerm)) {
-                    card.style.display = card.classList.contains('group-item-card') ? "flex" : "block";
-                } else {
-                    card.style.display = "none";
-                }
+                const textContent = card.innerText.replace(/\s+/g, '').toLowerCase();
+                card.style.display = textContent.includes(searchTerm) ? (card.classList.contains('group-item-card') ? "flex" : "block") : "none";
             });
         }
 
-        // --- 4. HUB LOGIC (GROUPS) ---
+        // --- HUB LOGIC ---
         async function fetchHubGroups() {
             const { data } = await client.from('railway_groups').select('*').eq('is_approved', true).order('created_at', { ascending: false });
-            document.getElementById('groups-list-container').innerHTML = (data || []).map(group => `
+            document.getElementById('groups-list-container').innerHTML = (data || []).map(g => `
                 <div class="group-item-card animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <div class="flex-1">
-                        <span class="bg-blue-100 text-blue-700 text-[8px] font-black px-2 py-1 rounded-md uppercase border border-blue-200">Official Hub ✅</span>
-                        <h4 class="text-xl font-black text-blue-950 uppercase italic mt-1">${group.group_name}</h4>
-                        <p class="text-[9px] font-bold text-gray-400 uppercase">Created: ${new Date(group.created_at).toLocaleDateString()}</p>
+                        <span class="bg-blue-100 text-blue-700 text-[8px] font-black px-2 py-1 rounded-md uppercase">Official Hub ✅</span>
+                        <h4 class="text-xl font-black text-blue-950 uppercase italic mt-1">${g.group_name}</h4>
                     </div>
-                    <div class="ml-4"><a href="${group.link}" target="_blank" class="bg-blue-900 text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase shadow-lg hover:bg-blue-800 transition">Join</a></div>
+                    <a href="${g.link}" target="_blank" class="bg-blue-900 text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase shadow-lg">Join</a>
                 </div>`).join('');
         }
-
         async function processGroupSubmission() {
             const name = document.getElementById('reg-group-name').value;
             const link = document.getElementById('reg-group-link').value;
-            if(!name || !link) { alert("Fields required"); return; }
+            if(!name || !link) return alert("All fields required");
             await client.from('railway_groups').insert([{ group_name: name, link: link, is_approved: autoApproveMode }]);
             alert(autoApproveMode ? "Group LIVE!" : "Pending Approval"); location.reload();
         }
-
         async function fetchScammerRecords() {
             const { data } = await client.from('blacklist').select('*').order('created_at', { ascending: false });
-            document.getElementById('blacklist-list-container').innerHTML = (data || []).map(scam => `
+            document.getElementById('blacklist-list-container').innerHTML = (data || []).map(s => `
                 <div class="blacklist-item-card bg-white p-6 rounded-[2rem] border-l-[12px] border-red-600 shadow-xl">
-                    <h4 class="text-2xl font-black text-red-600 uppercase italic">🚫 ${scam.phone_number}</h4>
-                    <div class="bg-red-50 p-4 rounded-2xl border border-red-100 mt-2"><p class="text-xs font-bold text-slate-700">"${scam.reason}"</p></div>
+                    <h4 class="text-2xl font-black text-red-600 uppercase">🚫 ${s.phone_number}</h4>
+                    <p class="text-xs font-bold text-slate-700 mt-2">"${s.reason}"</p>
                 </div>`).join('');
         }
-
         async function handleScammerReport() {
             const id = document.getElementById('report-scm-id').value.replace(/\s+/g, '');
             const reason = document.getElementById('report-scm-reason').value;
@@ -368,14 +342,14 @@
             closeReportModal(); fetchScammerRecords();
         }
 
-        // --- 5. ADMIN LOGIC (HUB) ---
+        // --- ADMIN ---
         function handleAdminLogin() {
             if(document.getElementById('admin-login-pin').value === '8102') {
                 document.getElementById('admin-auth-panel').classList.add('hidden');
                 document.getElementById('admin-main-dashboard').classList.remove('hidden');
                 document.getElementById('approval-toggle-switch').checked = autoApproveMode;
                 loadAdminConsoleData();
-            } else { alert("WRONG PIN"); }
+            } else alert("WRONG PIN");
         }
         function modifySystemMode() { autoApproveMode = document.getElementById('approval-toggle-switch').checked; alert("Mode Updated"); }
         async function loadAdminConsoleData() {
@@ -387,43 +361,68 @@
         async function approveAdminHub(id) { await client.from('railway_groups').update({ is_approved: true }).eq('id', id); loadAdminConsoleData(); }
         async function deleteAdminRecord(table, id) { if(confirm("Delete?")) await client.from(table).delete().eq('id', id); loadAdminConsoleData(); }
 
-        // --- 6. AADHAR TOOL LOGIC (GHOST MODE + STORAGE) ---
-        
+        // --- AADHAR TOOL LOGIC ---
         function toggleToolAdmin() {
-            var panel = document.getElementById("tool-admin-panel");
-            if (panel.style.display === "none") {
-                if (prompt("Enter Template Admin Password:") === "8102") { panel.style.display = "block"; } else { alert("Wrong Password!"); }
-            } else { panel.style.display = "none"; }
+            const panel = document.getElementById("tool-admin-panel");
+            if(panel.style.display === "none") {
+                if(prompt("Enter Template Admin Password:") === "8102") panel.style.display = "block";
+                else alert("Wrong Password!");
+            } else panel.style.display = "none";
         }
 
         function saveTemplate(e, type) {
-            let file = e.target.files[0]; if (!file) return;
+            let file = e.target.files[0]; if(!file) return;
             let reader = new FileReader();
             reader.onload = function(event) {
-                try {
-                    localStorage.setItem(type + '_bg_temp_hd', event.target.result);
-                    if(type === 'front') document.getElementById('front_bg_img').src = event.target.result;
-                    if(type === 'back') document.getElementById('back_bg_img').src = event.target.result;
-                    alert("Template Saved!");
-                } catch (err) { alert("Image too big for local storage!"); }
+                localStorage.setItem(type + '_bg_custom', event.target.result);
+                document.getElementById(type + '_bg_img').src = event.target.result;
+                alert("Template Updated!");
             };
             reader.readAsDataURL(file);
         }
 
+        function resetTemplates() {
+            localStorage.removeItem('front_bg_custom');
+            localStorage.removeItem('back_bg_custom');
+            document.getElementById('front_bg_img').src = DEFAULT_FRONT;
+            document.getElementById('back_bg_img').src = DEFAULT_BACK;
+            alert("Reset to Original Templates");
+        }
+
         function loadSavedTemplates() {
-            let frontBg = localStorage.getItem('front_bg_temp_hd');
-            let backBg = localStorage.getItem('back_bg_temp_hd');
-            if(frontBg) document.getElementById('front_bg_img').src = frontBg;
-            if(backBg) document.getElementById('back_bg_img').src = backBg;
+            let frontBg = localStorage.getItem('front_bg_custom');
+            let backBg = localStorage.getItem('back_bg_custom');
+            document.getElementById('front_bg_img').src = frontBg || DEFAULT_FRONT;
+            document.getElementById('back_bg_img').src = backBg || DEFAULT_BACK;
+        }
+
+        // --- TRANSLATION API (VERCEL INTEGRATED) ---
+        function handleNameInput(val) {
+             document.getElementById('out_name_en').innerText = val || "NAME HERE";
+             autoTrans(val, 'in_hi_name');
+        }
+
+        function handleAddrInput(val) {
+            document.getElementById('out_addr_en').innerText = val || "...";
+            autoTrans(val, 'in_addr_hi');
         }
 
         async function autoTrans(text, targetId) {
-            if (!text || text.trim() === "") { render(); return; }
+            if(!text) return;
             try {
-                const res = await fetch(`https://inputtools.google.com/request?text=${encodeURI(text)}&itc=hi-t-i0-und&num=1&cp=0&cs=1&ie=utf-8&oe=utf-8&app=demopage`);
+                // Call local Vercel API instead of direct Google
+                const res = await fetch(`/api/translate?text=${encodeURI(text)}`);
+                if (!res.ok) throw new Error("API Error");
+                
                 const data = await res.json();
-                if (data && data[1] && data[1][0] && data[1][0][1]) { document.getElementById(targetId).value = data[1][0][1][0]; render(); }
-            } catch (e) {}
+                if(data && data[1][0][1][0]) { 
+                    document.getElementById(targetId).value = data[1][0][1][0]; 
+                    render(); 
+                }
+            } catch(e) {
+                // Fail-safe: Keep English if translation fails
+                console.log("Translation failed, keeping original");
+            }
         }
 
         function render() {
@@ -431,14 +430,13 @@
             let fmtUid = uid.replace(/\s+/g, '').replace(/(\d{4})/g, '$1 ').trim();
             document.getElementById('out_uid').innerText = fmtUid || "0000 0000 0000";
             document.getElementById('out_uid_b').innerText = fmtUid || "0000 0000 0000";
-            document.getElementById('out_name_en').innerText = document.getElementById('in_en_name').value;
-            document.getElementById('out_name_hi').innerText = document.getElementById('in_hi_name').value;
-            document.getElementById('out_dob').innerText = document.getElementById('in_dob').value;
+            document.getElementById('out_name_en').innerText = document.getElementById('in_en_name').value || "NAME HERE";
+            document.getElementById('out_name_hi').innerText = document.getElementById('in_hi_name').value || "नाम यहाँ";
+            document.getElementById('out_dob').innerText = document.getElementById('in_dob').value || "00/00/0000";
             document.getElementById('out_gender').innerText = document.getElementById('in_gen').value;
-            document.getElementById('out_addr_en').innerText = document.getElementById('in_addr_en').value;
-            document.getElementById('out_addr_hi').innerText = document.getElementById('in_addr_hi').value;
-            let iDate = document.getElementById('in_date').value;
-            document.getElementById('out_date').innerText = iDate ? "Aadhaar no. issued: " + iDate : "";
+            document.getElementById('out_addr_en').innerText = document.getElementById('in_addr_en').value || "...";
+            document.getElementById('out_addr_hi').innerText = document.getElementById('in_addr_hi').value || "...";
+            document.getElementById('out_date').innerText = "Aadhaar no. issued: " + document.getElementById('in_date').value;
         }
 
         function loadPhoto(e) {
@@ -447,42 +445,49 @@
             r.readAsDataURL(e.target.files[0]);
         }
 
+        // --- PDF GENERATION (OPTIMIZED) ---
         function savePdf() {
             const btn = document.getElementById('btn-print-pdf');
             const originalText = btn.innerHTML;
-            btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> Generating Ultra HD PDF...";
+            btn.innerHTML = "Processing PDF...";
             
-            // GHOST MODE: Create a clone of the card container
             const element = document.getElementById('preview-scaler');
             const clone = element.cloneNode(true);
             
-            // Force 1.0 Scale on the clone for maximum resolution
+            // Fix positioning for PDF render (Hidden but accessible)
             clone.style.transform = "scale(1)";
             clone.style.margin = "0";
-            clone.style.position = "fixed";
+            clone.style.position = "absolute";
+            clone.style.left = "-9999px"; 
             clone.style.top = "0";
-            clone.style.left = "0";
-            clone.style.zIndex = "-9999"; // Hide behind everything
-            clone.style.width = "960px";  // Force HD Width
-            
+            clone.style.width = "960px"; 
+            clone.style.background = "#fff";
+
             document.body.appendChild(clone);
 
+            // Settings: Scale 2 is best balance for HD vs File Size
             var opt = {
-                margin: 10,
-                filename: 'Aadhar_Final_4K.pdf',
-                image: { type: 'jpeg', quality: 1.0 },
-                html2canvas: { scale: 4, useCORS: true, scrollY: 0 },
+                margin: 0,
+                filename: 'Aadhar_HD.pdf',
+                image: { type: 'jpeg', quality: 0.95 },
+                html2canvas: { 
+                    scale: 2, 
+                    useCORS: true, 
+                    scrollY: 0,
+                    windowWidth: 1000
+                },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
             html2pdf().set(opt).from(clone).save().then(() => {
-                document.body.removeChild(clone); // Destroy the ghost
+                document.body.removeChild(clone);
                 btn.innerHTML = originalText;
+            }).catch(err => {
+                console.error(err);
+                btn.innerHTML = "Failed. Retry";
+                document.body.removeChild(clone);
             });
         }
-
-        // Init
-        fetchHubGroups();
     </script>
 </body>
 </html>
