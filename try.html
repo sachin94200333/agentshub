@@ -46,13 +46,13 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
 
-        /* Scaler: Fixes mobile view issue */
+        /* Scaler: Fixes mobile view issue - MOVED UP with negative margin */
         #preview-scaler { 
             transform-origin: top center; 
             width: 960px; 
             margin-left: auto; margin-right: auto;
             /* Mobile Scale + Negative Margin to pull it up */
-            transform: scale(0.35); margin-bottom: -380px; margin-top: -10px;
+            transform: scale(0.34); margin-bottom: -380px; margin-top: -20px;
         }
         @media(min-width: 768px) { 
             #preview-scaler { transform: scale(0.5); margin-bottom: -300px; margin-top: 0; } 
@@ -187,14 +187,14 @@
                     <div class="mt-2"><label class="tool-label">User Photo</label><input type="file" onchange="loadPhoto(event)" class="tool-input"></div>
 
                     <button id="btn-print-pdf" onclick="savePdf()" class="w-full bg-gradient-to-r from-red-600 to-red-500 text-white py-4 rounded-xl font-black uppercase shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all mt-6 text-sm tracking-widest">
-                        <i class="fas fa-file-pdf mr-2"></i> Download PDF (Low Size)
+                        <i class="fas fa-file-pdf mr-2"></i> Download PDF
                     </button>
                 </div>
 
                 <div style="width:100%; overflow:hidden;">
                     <div id="preview-scaler">
                         <div class="card-box" id="front-view">
-                            <img id="front_bg_img" class="template-img" src="https://i.ibb.co/NdLV3y52/pvc1f.jpg" alt="Front">
+                            <img id="front_bg_img" class="template-img" src="https://i.ibb.co/NdLV3y52/pvc1f.jpg" alt="Front" crossorigin="anonymous">
                             
                             <div class="side-date" id="out_date">Aadhaar no. issued: 26/03/2016</div>
                             <img id="out_photo" class="user-pic" src="">
@@ -208,7 +208,7 @@
                         </div>
 
                         <div class="card-box" id="back-view">
-                            <img id="back_bg_img" class="template-img" src="https://i.ibb.co/KjM9gkLM/pvc2.jpg" alt="Back">
+                            <img id="back_bg_img" class="template-img" src="https://i.ibb.co/KjM9gkLM/pvc2.jpg" alt="Back" crossorigin="anonymous">
 
                             <div class="back-container">
                                 <div class="addr-group"><span class="addr-label">पता:</span><span class="addr-text" id="out_addr_hi">...</span></div>
@@ -272,7 +272,7 @@
         const client = supabase.createClient(HUB_URL, HUB_KEY);
         let autoApproveMode = true;
 
-        // Default Template URLs
+        // Default Template URLs (Set your provided links here)
         const DEFAULT_FRONT = "https://i.ibb.co/NdLV3y52/pvc1f.jpg";
         const DEFAULT_BACK = "https://i.ibb.co/KjM9gkLM/pvc2.jpg";
 
@@ -366,6 +366,7 @@
             let file = e.target.files[0]; if(!file) return;
             let reader = new FileReader();
             reader.onload = function(event) {
+                // Save image data to local storage
                 localStorage.setItem(type + '_bg_custom', event.target.result);
                 document.getElementById(type + '_bg_img').src = event.target.result;
                 alert("Template Updated!");
@@ -418,7 +419,7 @@
             r.readAsDataURL(e.target.files[0]);
         }
 
-        // --- PDF GENERATION (OPTIMIZED FOR SIZE) ---
+        // --- PDF GENERATION (FIXED BLANK PDF) ---
         function savePdf() {
             const btn = document.getElementById('btn-print-pdf');
             const originalText = btn.innerHTML;
@@ -428,28 +429,41 @@
             const element = document.getElementById('preview-scaler');
             const clone = element.cloneNode(true);
             
+            // Positioning Hack: Move off-screen instead of hidden behind
+            // This fixes blank PDF issue because renderer can "see" it
             clone.style.transform = "scale(1)";
             clone.style.margin = "0";
-            clone.style.position = "fixed";
+            clone.style.position = "absolute";
+            clone.style.left = "-9999px"; 
             clone.style.top = "0";
-            clone.style.left = "0";
-            clone.style.zIndex = "-9999";
             clone.style.width = "960px"; // Force HD width
             
+            // White background to prevent transparency issues
+            clone.style.background = "#fff";
+
             document.body.appendChild(clone);
 
             // OPTIMIZED SETTINGS: Scale 2 + Quality 0.95 = Low Size, High Clarity
             var opt = {
-                margin: 10,
+                margin: 0,
                 filename: 'Aadhar_Final.pdf',
                 image: { type: 'jpeg', quality: 0.95 },
-                html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+                html2canvas: { 
+                    scale: 2, 
+                    useCORS: true, // CRITICAL FOR EXTERNAL IMAGES
+                    scrollY: 0,
+                    windowWidth: 1000
+                },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
             html2pdf().set(opt).from(clone).save().then(() => {
                 document.body.removeChild(clone);
                 btn.innerHTML = originalText;
+            }).catch(err => {
+                console.error(err);
+                btn.innerHTML = "Error! Try Again";
+                document.body.removeChild(clone);
             });
         }
 
