@@ -9,6 +9,7 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -61,10 +62,22 @@
         }
 
         #preview-scaler { 
-            transform-origin: top center; width: 960px; margin: 0 auto;
-            transform: scale(0.34); margin-bottom: -380px; margin-top: -20px;
-        }
-        @media(min-width: 768px) { #preview-scaler { transform: scale(0.5); margin-bottom: -300px; margin-top: 0; } }
+    transform-origin: top center; 
+    width: 960px; 
+    margin: 0 auto; /* यह कार्ड को बीच में रखेगा */
+    transform: scale(0.32); /* मोबाइल के लिए परफेक्ट साइज */
+    margin-bottom: -400px; 
+    margin-top: -10px;
+}
+
+/* डेस्कटॉप के लिए बड़ा साइज */
+@media(min-width: 768px) { 
+    #preview-scaler { 
+        transform: scale(0.55); 
+        margin-bottom: -280px; 
+        margin-top: 0;
+    } 
+}
 
         .template-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1 !important; pointer-events: none; }
         .user-pic { position: absolute; top: 136px; left: 90px; width: 176px; height: 220px; background: #f0f0f0; z-index: 50; object-fit: cover; }
@@ -100,19 +113,18 @@
         .txt-gender { font-family: 'Roboto', sans-serif; font-size: 27px; font-weight: 600; display: block; }
         .gender-hi { font-family: 'Noto Sans Devanagari', sans-serif; }
 
-        /* NUMBER STYLE */
-        .num-big { 
-            position: absolute; 
-            bottom: 50px; 
-            width: 100%; 
-            text-align: center; 
-            font-size: 52px; 
-            font-family: 'Roboto', sans-serif; 
-            font-weight: 700;  /* Medium Bold (Authentic) */
-            letter-spacing: 4px; 
-            color: #000; 
-            z-index: 50; 
-            text-shadow: 0 0 1px rgba(0,0,0,0.1); 
+       .num-big { 
+    position: absolute; 
+    bottom: 8%; /* 'px' की जगह '%' इस्तेमाल करें, ताकि यह कार्ड के साथ एडजस्ट हो */
+    width: 100%; 
+    text-align: center; 
+    font-size: 52px; 
+    font-family: 'Roboto', sans-serif; 
+    font-weight: 700; 
+    letter-spacing: 4px; 
+    color: #000; 
+    z-index: 50; 
+
         }
 
         .side-date { position: absolute; left: 56px; top: 460px; transform: rotate(-90deg); transform-origin: left bottom; font-size: 21px; font-weight: 600; color: #000; white-space: nowrap; letter-spacing: 0.4px; z-index: 50; font-family: 'Roboto', sans-serif; }
@@ -135,22 +147,19 @@
         </div>
     </div>
 
-    <nav class="bg-white/80 backdrop-blur-md p-4 sticky top-[44px] z-50 border-b shadow-sm no-print">
-        <div class="container mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="bg-blue-900 p-2 rounded-xl text-white shadow-lg"><i class="fas fa-shield-halved text-xl"></i></div>
-                <div>
-                    <h1 class="text-2xl font-black italic text-blue-950 uppercase tracking-tighter leading-none">Agents Hub</h1>
-                    <span class="text-[8px] font-bold text-gray-400 uppercase tracking-widest">Railway Protection Network</span>
-                </div>
-            </div>
-            <div class="flex gap-2">
-                <button onclick="changePage('groups')" class="p-2 text-blue-900 font-bold text-xs uppercase hover:bg-blue-50 rounded-lg transition">Home</button>
-                <button onclick="changePage('blacklist')" class="bg-red-600 text-white px-4 py-2 rounded-xl font-black text-[10px] uppercase shadow-md animate-pulse">Blacklist 🚫</button>
-                <button onclick="changePage('admin')" class="bg-slate-100 text-slate-900 px-4 py-2 rounded-xl font-black text-[10px] uppercase border hover:bg-yellow-400 transition">Admin</button>
-            </div>
+    <nav class="bg-white/90 backdrop-blur-md p-2 md:p-4 sticky top-[44px] z-50 border-b shadow-sm no-print">
+    <div class="container mx-auto flex justify-between items-center">
+        <div class="flex items-center gap-1 md:gap-3">
+            <div class="bg-blue-900 p-1.5 rounded-lg text-white shadow-lg"><i class="fas fa-shield-halved text-sm md:text-xl"></i></div>
+            <h1 class="text-sm md:text-2xl font-black italic text-blue-950 uppercase leading-none">Agents Hub</h1>
         </div>
-    </nav>
+        <div class="flex gap-1 md:gap-2">
+            <button onclick="changePage('groups')" class="px-2 py-1 text-blue-900 font-bold text-[10px] md:text-xs uppercase">Home</button>
+            <button onclick="changePage('blacklist')" class="bg-red-600 text-white px-2 py-1.5 md:px-4 md:py-2 rounded-lg font-black text-[9px] md:text-[10px] uppercase shadow-md">Blacklist</button>
+            <button onclick="changePage('admin')" class="bg-slate-100 text-slate-900 px-2 py-1.5 md:px-4 md:py-2 rounded-lg font-black text-[9px] md:text-[10px] uppercase border">Admin</button>
+        </div>
+    </div>
+</nav>
 
     <div class="fixed bottom-8 right-8 z-[100] hidden md:flex no-print">
         <div class="digital-clock">
@@ -219,12 +228,10 @@
                     <div class="mt-2"><label class="tool-label">Address (Hindi - Auto)</label><textarea id="in_addr_hi" rows="2" class="tool-input" oninput="render()"></textarea></div>
                     <div class="mt-2 no-print"><label class="tool-label">User Photo</label><input type="file" onchange="loadPhoto(event)" class="tool-input"></div>
 
-                    <button id="btn-print-pdf" onclick="savePdf()" class="w-full bg-gradient-to-r from-red-600 to-red-500 text-white py-4 rounded-xl font-black uppercase shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all mt-6 text-sm tracking-widest no-print">
-                        <i class="fas fa-file-pdf mr-2"></i> Download Card Only
-                    </button>
-                    <button onclick="window.print()" class="w-full bg-slate-800 text-white py-3 rounded-xl font-bold uppercase mt-3 text-xs shadow-md hover:bg-slate-900 transition flex justify-center items-center gap-2 no-print">
-                        <i class="fas fa-print"></i> Print Full Receipt / Save as PDF
-                    </button>
+                 <button id="btn-download-img" onclick="downloadCardAsImage()" class="w-full bg-gradient-to-r from-red-600 to-red-500 text-white py-4 rounded-xl font-black uppercase shadow-lg hover:shadow-2xl hover:scale-[1.02] transition-all mt-6 text-sm tracking-widest no-print">
+    <i class="fas fa-image mr-2"></i> Download HD Image (Gallery)
+</button>
+                   
                 </div>
 
                 <div style="width:100%; overflow:hidden;" class="no-print">
@@ -538,18 +545,64 @@
             r.onload = function(){ document.getElementById('out_photo').src = r.result; }
             r.readAsDataURL(e.target.files[0]);
         }
-        function savePdf() {
-            const btn = document.getElementById('btn-print-pdf');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = "Processing...";
-            const element = document.getElementById('preview-scaler');
-            const clone = element.cloneNode(true);
-            clone.style.transform = "scale(1)"; clone.style.margin = "0"; clone.style.position = "absolute"; clone.style.left = "-9999px"; clone.style.top = "0"; clone.style.width = "960px"; clone.style.background = "#fff";
-            document.body.appendChild(clone);
-            var opt = { margin: 0, filename: 'Aadhar_HD.pdf', image: { type: 'jpeg', quality: 0.95 }, html2canvas: { scale: 2, useCORS: true, scrollY: 0, windowWidth: 1000 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-            html2pdf().set(opt).from(clone).save().then(() => {
-                incrementDownloadCount(); document.body.removeChild(clone); btn.innerHTML = originalText;
-            });
+     async function downloadCardAsImage() {
+    const btn = document.getElementById('btn-download-img');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = "<i class='fas fa-spinner fa-spin mr-2'></i> Generating Ultra HD...";
+
+    // सीधे कार्ड्स वाले डिब्बे को पकड़ा
+    const element = document.getElementById('preview-scaler');
+
+    try {
+   // Line 550 के पास इसे बदलें
+const canvas = await html2canvas(element, {
+    scale: 4, 
+    useCORS: true,
+    backgroundColor: "#ffffff",
+    logging: false,
+    windowWidth: 1000,
+    onclone: (clonedDoc) => {
+            // 1. कार्ड को असली साइज में सेट करना
+            const scaler = clonedDoc.getElementById('preview-scaler');
+            if(scaler) {
+                scaler.style.transform = "scale(1)"; 
+                scaler.style.margin = "0 auto";
+            }
+            
+            // 2. नाम, DOB और Gender वाला डिब्बा (Manual Control)
+            // अगर यह नीचे आ रहा है, तो 130px को घटाकर 110px या 115px करें
+            const textDetails = clonedDoc.querySelector('.text-details');
+            if(textDetails) textDetails.style.top = "120px"; 
+
+            // 3. यूजर की फोटो (User Pic)
+            // इसे भी ऊपर-नीचे करने के लिए यहाँ से बदलें
+            const userPic = clonedDoc.querySelector('.user-pic');
+            if(userPic) userPic.style.top = "136px";
+
+            // 4. आधार नंबर (Front & Back) - जिसे आपने 70-75px पर सेट किया था
+            const numFront = clonedDoc.getElementById('out_uid');
+            const numBack = clonedDoc.getElementById('out_uid_b');
+            if(numFront) numFront.style.bottom = "70px"; 
+            if(numBack) numBack.style.bottom = "70px";
+        }
+});
+        
+        const image = canvas.toDataURL("image/png", 1.0);
+        const link = document.createElement('a');
+        link.download = `Railway_Card_${Date.now()}.png`;
+        link.href = image;
+        link.click();
+
+        incrementDownloadCount();
+        btn.innerHTML = originalText;
+    } catch (err) {
+        console.error("Capture Error:", err);
+        btn.innerHTML = "Error! Try Again";
+        alert("एक बार पेज रिफ्रेश करें।");
+    }
+
+
+
         }
         function filterBlacklist() {
     const input = document.getElementById('blacklist-search-input');
