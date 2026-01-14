@@ -81,7 +81,7 @@
         }
         .txt-name-hi { 
             font-family: 'Noto Sans Devanagari', sans-serif; 
-            font-size: 34px; 
+            font-size: 30px; 
             font-weight: 700; 
             display: block; 
             margin-bottom: 6px; 
@@ -254,10 +254,28 @@
             </div>
         </div>
 
-        <div id="page-blacklist" class="page-content hidden no-print">
-            <div class="text-center mb-12"><h2 class="text-4xl font-black text-red-600 uppercase italic tracking-tighter mb-4">Scammer Database</h2><button onclick="openReportModal()" class="bg-red-600 text-white px-12 py-5 rounded-full font-black text-sm uppercase shadow-2xl">+ Report Fraud</button></div>
-            <div id="blacklist-list-container" class="grid gap-6 md:grid-cols-2"></div>
+     <div id="page-blacklist" class="page-content hidden no-print">
+    <div class="text-center mb-12">
+        <h2 class="text-4xl font-black text-red-600 uppercase italic tracking-tighter mb-4">Scammer Database</h2>
+        
+        <div class="max-w-md mx-auto mb-10 px-4">
+            <div class="relative flex items-center bg-white rounded-2xl shadow-xl p-2 border-2 border-red-500/20 focus-within:border-red-500 transition-all">
+                <i class="fas fa-search ml-4 text-red-500 text-xl"></i>
+                <input type="text" 
+                       id="blacklist-search-input" 
+                       onkeyup="filterBlacklist()" 
+                       placeholder="Search Scammer ID or Number..." 
+                       class="w-full p-4 pl-4 rounded-xl outline-none font-black text-slate-800">
+            </div>
         </div>
+
+        <button onclick="openReportModal()" class="bg-red-600 text-white px-12 py-5 rounded-full font-black text-sm uppercase shadow-2xl hover:bg-red-700 transition">
+            <i class="fas fa-plus mr-2"></i> Report Fraud
+        </button>
+    </div>
+    
+    <div id="blacklist-list-container" class="grid gap-6 md:grid-cols-2"></div>
+</div>
 
         <div id="page-admin" class="page-content hidden max-w-2xl mx-auto no-print">
              <div id="admin-auth-panel" class="bg-white p-12 rounded-[3rem] shadow-2xl border-4 border-slate-900 text-center">
@@ -418,10 +436,8 @@
         async function fetchScammerRecords() {
             // RESTORED OLD HARDCODED LIST + DB
             const oldScammers = [
-                { phone_number: "Fuji", reason: "Legacy Scammer Record" },
-                { phone_number: "Aziz", reason: "Legacy Scammer Record" },
-                { phone_number: "Akash", reason: "Legacy Scammer Record" },
-                { phone_number: "Sab", reason: "Legacy Scammer Record" }
+                { phone_number: "test", reason: "Legacy Scammer Record" },
+            
             ];
 
             let dbData = [];
@@ -535,6 +551,22 @@
                 incrementDownloadCount(); document.body.removeChild(clone); btn.innerHTML = originalText;
             });
         }
+        function filterBlacklist() {
+    const input = document.getElementById('blacklist-search-input');
+    const filter = input.value.toUpperCase().replace(/\s+/g, ''); 
+    const container = document.getElementById('blacklist-list-container');
+    const cards = container.getElementsByClassName('blacklist-item-card');
+
+    for (let i = 0; i < cards.length; i++) {
+        const textContent = cards[i].innerText || cards[i].textContent;
+        const cleanText = textContent.toUpperCase().replace(/\s+/g, '');
+        if (cleanText.indexOf(filter) > -1) {
+            cards[i].style.display = ""; 
+        } else {
+            cards[i].style.display = "none"; 
+        }
+    }
+}
     </script>
 </body>
 </html>
