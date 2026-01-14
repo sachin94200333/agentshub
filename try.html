@@ -46,7 +46,7 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
 
-        /* Scaler: Fixes mobile view issue - MOVED UP with negative margin */
+        /* Scaler: Fixes mobile view issue */
         #preview-scaler { 
             transform-origin: top center; 
             width: 960px; 
@@ -169,7 +169,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div><label class="tool-label">Aadhar Number</label><input type="text" id="in_uid" class="tool-input" oninput="render()"></div>
                         <div><label class="tool-label">Issue Date</label><input type="text" id="in_date" value="26/03/2016" class="tool-input" oninput="render()"></div>
-                        <div><label class="tool-label">Name (Eng)</label><input type="text" id="in_en_name" class="tool-input" oninput="autoTrans(this.value, 'in_hi_name')"></div>
+                        <div><label class="tool-label">Name (Eng)</label><input type="text" id="in_en_name" class="tool-input" oninput="handleNameInput(this.value)"></div>
                         <div><label class="tool-label">Name (Hindi)</label><input type="text" id="in_hi_name" class="tool-input" oninput="render()"></div>
                         <div><label class="tool-label">DOB</label><input type="text" id="in_dob" class="tool-input" oninput="render()"></div>
                         <div>
@@ -181,7 +181,7 @@
                         </div>
                     </div>
                     
-                    <div class="mt-2"><label class="tool-label">Address (English - Start with C/O)</label><textarea id="in_addr_en" rows="2" class="tool-input" oninput="autoTrans(this.value, 'in_addr_hi')"></textarea></div>
+                    <div class="mt-2"><label class="tool-label">Address (English - Start with C/O)</label><textarea id="in_addr_en" rows="2" class="tool-input" oninput="handleAddrInput(this.value)"></textarea></div>
                     <div class="mt-2"><label class="tool-label">Address (Hindi)</label><textarea id="in_addr_hi" rows="2" class="tool-input" oninput="render()"></textarea></div>
                     <div class="mt-2"><label class="tool-label">User Photo</label><input type="file" onchange="loadPhoto(event)" class="tool-input"></div>
 
@@ -392,17 +392,37 @@
             document.getElementById('back_bg_img').src = backBg || DEFAULT_BACK;
         }
 
+        // --- NEW: FAIL-SAFE TEXT HANDLERS ---
+        // These functions update the text immediately. Then attempt translation.
+        
+        function handleNameInput(val) {
+             // 1. Immediate Update (Fail-safe)
+             document.getElementById('out_name_en').innerText = val || "NAME HERE";
+             // 2. Try Translation
+             autoTrans(val, 'in_hi_name');
+        }
+
+        function handleAddrInput(val) {
+            // 1. Immediate Update (Fail-safe)
+            document.getElementById('out_addr_en').innerText = val || "...";
+            // 2. Try Translation
+            autoTrans(val, 'in_addr_hi');
+        }
+
         async function autoTrans(text, targetId) {
             if(!text) return;
             try {
+                // Try Google API
                 const res = await fetch(`https://inputtools.google.com/request?text=${encodeURI(text)}&itc=hi-t-i0-und&num=1&cp=0&cs=1&ie=utf-8&oe=utf-8&app=demopage`);
                 const data = await res.json();
                 if(data && data[1][0][1][0]) { 
+                    // Success: Update Input and Render
                     document.getElementById(targetId).value = data[1][0][1][0]; 
                     render(); 
                 }
             } catch(e) {
-                // FAIL-SAFE: If translation API is blocked (Vercel), use English text
+                // FAILURE (Vercel Blocked): Just copy English to Hindi field so it's not empty
+                console.log("Translation blocked, using fallback");
                 document.getElementById(targetId).value = text;
                 render();
             }
@@ -455,6 +475,7 @@
                 html2canvas: { 
                     scale: 2, 
                     useCORS: true, 
+                    allowTaint: true,
                     scrollY: 0,
                     windowWidth: 1000
                 },
