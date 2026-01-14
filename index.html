@@ -275,28 +275,30 @@
                        placeholder="Search Scammer ID or Number..." 
                        class="w-full p-4 pl-4 rounded-xl outline-none font-black text-slate-800">
             </div>
-        </div>
-        <div id="page-trusted" class="page-content hidden no-print">
+       <div id="page-trusted" class="page-content hidden no-print">
     <div class="text-center mb-8">
-        <h2 class="text-3xl font-black text-green-600 uppercase italic tracking-tighter">Verified Agents</h2>
-        <p class="text-[10px] font-bold text-slate-500 mb-6">ONLY APPROVED AGENTS ARE LISTED HERE</p>
-        
-        <button onclick="openTrustModal()" class="bg-blue-900 text-white px-8 py-3 rounded-xl font-black text-xs uppercase shadow-lg">
-            Apply for Trusted Tag
+        <h2 class="text-3xl font-black text-green-600 uppercase italic">Verified Agents</h2>
+        <button onclick="openTrustModal()" class="bg-blue-900 text-white px-8 py-3 rounded-xl font-black text-xs uppercase shadow-lg mt-4">
+            Apply for Trusted Tag 🚀
         </button>
     </div>
-    
     <div id="trusted-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 px-4"></div>
 </div>
 
-<div id="trust-modal-overlay" class="fixed inset-0 bg-slate-950/90 hidden z-[200] flex items-center justify-center p-4 backdrop-blur-md">
-    <div class="bg-white p-8 rounded-[2rem] w-full max-w-sm border-t-[15px] border-green-600 shadow-2xl relative">
-        <h3 class="text-xl font-black text-slate-900 mb-6 uppercase">Agent Application</h3>
+<div id="trust-modal-overlay" class="fixed inset-0 bg-slate-950/90 hidden z-[200] flex items-center justify-center p-4">
+    </div>    
+    <div class="bg-white p-8 rounded-[2rem] w-full max-w-sm border-t-[10px] border-green-600 shadow-2xl relative">
+        <h3 class="text-xl font-black text-slate-900 mb-2 uppercase">Agent Application</h3>
+        <p class="text-[10px] font-bold text-slate-400 mb-6 uppercase">Verify your identity</p>
+        
         <div class="space-y-4">
-            <input type="text" id="trust-name" placeholder="Full Name" class="w-full p-4 border-2 border-slate-100 rounded-xl font-bold">
-            <input type="text" id="trust-phone" placeholder="WhatsApp Number" class="w-full p-4 border-2 border-slate-100 rounded-xl font-bold">
-            <button onclick="submitTrustRequest()" class="w-full bg-green-600 text-white py-4 rounded-2xl font-black uppercase text-sm">Submit for Approval</button>
-            <button onclick="closeTrustModal()" class="w-full text-slate-400 font-bold text-xs">Cancel</button>
+            <input type="text" id="trust-name" placeholder="Full Name" class="w-full p-4 border-2 border-slate-100 rounded-xl font-bold outline-none focus:border-green-500">
+            <input type="text" id="trust-phone" placeholder="WhatsApp Number" class="w-full p-4 border-2 border-slate-100 rounded-xl font-bold outline-none focus:border-green-500">
+            
+            <button onclick="submitTrustRequest()" class="w-full bg-green-600 text-white py-4 rounded-2xl font-black uppercase text-sm shadow-xl">
+                Submit Request
+            </button>
+            <button onclick="closeTrustModal()" class="w-full text-slate-400 font-bold text-xs mt-2">Maybe Later</button>
         </div>
     </div>
 </div>
@@ -430,14 +432,26 @@
             document.getElementById('out_date').innerText = "Aadhaar no. issued: " + document.getElementById('in_date').value;
         }
 
-        function changePage(pageId) {
-            document.querySelectorAll('.page-content').forEach(view => view.classList.add('hidden'));
-            document.getElementById('page-' + pageId).classList.remove('hidden');
-            if(pageId === 'groups') fetchHubGroups();
-            if(pageId === 'blacklist') fetchScammerRecords();
-            if(pageId === 'tool-aadhar') loadSavedTemplates();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+     function changePage(pageId) {
+    // 1. सभी पेज को छुपाएं
+    document.querySelectorAll('.page-content').forEach(view => {
+        view.classList.add('hidden');
+    });
+    
+    // 2. जो पेज खोलना है उसे दिखाएं
+    const target = document.getElementById('page-' + pageId);
+    if(target) {
+        target.classList.remove('hidden');
+        console.log("Opened:", pageId);
+    }
+
+    // 3. डेटा लोड करें
+    if(pageId === 'trusted') fetchTrustedAgents();
+    if(pageId === 'admin') fetchPendingTrustRequests(); // एडमिन के लिए
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+}
         function openReportModal() { document.getElementById('report-modal-overlay').classList.remove('hidden'); }
         function closeReportModal() { document.getElementById('report-modal-overlay').classList.add('hidden'); }
         setInterval(() => { document.getElementById('full-time').innerText = new Date().toLocaleTimeString('en-US', { hour12: false }); }, 1000);
