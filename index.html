@@ -157,6 +157,7 @@
             <button onclick="changePage('groups')" class="px-2 py-1 text-blue-900 font-bold text-[10px] md:text-xs uppercase">Home</button>
             <button onclick="changePage('blacklist')" class="bg-red-600 text-white px-2 py-1.5 md:px-4 md:py-2 rounded-lg font-black text-[9px] md:text-[10px] uppercase shadow-md">Blacklist</button>
             <button onclick="changePage('admin')" class="bg-slate-100 text-slate-900 px-2 py-1.5 md:px-4 md:py-2 rounded-lg font-black text-[9px] md:text-[10px] uppercase border">Admin</button>
+            <button onclick="changePage('trusted')" class="bg-green-600 text-white px-2 py-1.5 md:px-4 md:py-2 rounded-lg font-black text-[9px] md:text-[10px] uppercase shadow-md">Trusted ✅</button>
         </div>
     </div>
 </nav>
@@ -275,6 +276,30 @@
                        class="w-full p-4 pl-4 rounded-xl outline-none font-black text-slate-800">
             </div>
         </div>
+        <div id="page-trusted" class="page-content hidden no-print">
+    <div class="text-center mb-8">
+        <h2 class="text-3xl font-black text-green-600 uppercase italic tracking-tighter">Verified Agents</h2>
+        <p class="text-[10px] font-bold text-slate-500 mb-6">ONLY APPROVED AGENTS ARE LISTED HERE</p>
+        
+        <button onclick="openTrustModal()" class="bg-blue-900 text-white px-8 py-3 rounded-xl font-black text-xs uppercase shadow-lg">
+            Apply for Trusted Tag
+        </button>
+    </div>
+    
+    <div id="trusted-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 px-4"></div>
+</div>
+
+<div id="trust-modal-overlay" class="fixed inset-0 bg-slate-950/90 hidden z-[200] flex items-center justify-center p-4 backdrop-blur-md">
+    <div class="bg-white p-8 rounded-[2rem] w-full max-w-sm border-t-[15px] border-green-600 shadow-2xl relative">
+        <h3 class="text-xl font-black text-slate-900 mb-6 uppercase">Agent Application</h3>
+        <div class="space-y-4">
+            <input type="text" id="trust-name" placeholder="Full Name" class="w-full p-4 border-2 border-slate-100 rounded-xl font-bold">
+            <input type="text" id="trust-phone" placeholder="WhatsApp Number" class="w-full p-4 border-2 border-slate-100 rounded-xl font-bold">
+            <button onclick="submitTrustRequest()" class="w-full bg-green-600 text-white py-4 rounded-2xl font-black uppercase text-sm">Submit for Approval</button>
+            <button onclick="closeTrustModal()" class="w-full text-slate-400 font-bold text-xs">Cancel</button>
+        </div>
+    </div>
+</div>
 
         <button onclick="openReportModal()" class="bg-red-600 text-white px-12 py-5 rounded-full font-black text-sm uppercase shadow-2xl hover:bg-red-700 transition">
             <i class="fas fa-plus mr-2"></i> Report Fraud
@@ -303,6 +328,12 @@
                          <button onclick="updateNotice()" class="mt-2 bg-slate-900 text-white px-3 py-1 rounded text-[10px] font-bold uppercase w-full">Save</button>
                     </div>
                 </div>
+                <div class="bg-white p-6 rounded-[2rem] border-2 border-slate-100 shadow-xl mt-4">
+    <h4 class="text-xs font-black uppercase text-slate-400 tracking-widest mb-4">Pending Trusted Requests</h4>
+    <div id="pending-trust-list" class="space-y-4">
+        <p class='text-slate-300 font-bold text-[10px] uppercase'>Loading requests...</p>
+    </div>
+</div>
                 
                 <div class="bg-white p-6 rounded-[2rem] border-2 border-yellow-400 shadow-xl relative overflow-hidden">
                     <div class="absolute top-0 right-0 bg-yellow-400 text-black px-4 py-1 font-bold text-[10px] uppercase rounded-bl-xl">Admin Only</div>
@@ -617,6 +648,84 @@ const canvas = await html2canvas(element, {
             cards[i].style.display = ""; 
         } else {
             cards[i].style.display = "none"; 
+        }
+    }
+}
+function openTrustModal() { document.getElementById('trust-modal-overlay').classList.remove('hidden'); }
+function closeTrustModal() { document.getElementById('trust-modal-overlay').classList.add('hidden'); }
+
+async function submitTrustRequest() {
+    const name = document.getElementById('trust-name').value;
+    const phone = document.getElementById('trust-phone').value;
+    if(!name || !phone) return alert("Fill all fields");
+
+    // डेटाबेस में 'is_approved' को false रखकर भेजें ताकि Admin चेक कर सके
+    await client.from('trusted_list').insert([{ name: name, phone: phone, is_approved: false }]);
+    alert("Request Sent! Admin will verify soon.");
+    closeTrustModal();
+}
+
+async function fetchTrustedAgents() {
+    const { data } = await client.from('trusted_list').select('*').eq('is_approved', true);
+    const container = document.getElementById('trusted-list-container');
+    container.innerHTML = (data || []).map(a => `
+        <div class="bg-white p-5 rounded-2xl border-l-8 border-green-500 shadow-md flex justify-between items-center">
+            <div>
+                <h4 class="font-black text-slate-900 uppercase">${a.name}</h4>
+                <p class="text-green-600 font-bold text-sm"><i class="fab fa-whatsapp"></i> ${a.phone}</p>
+            </div>
+            <div class="bg-green-100 text-green-700 p-2 rounded-full text-xs font-black">VERIFIED ✅</div>
+        </div>
+    `).join('');
+}
+// पेंडिंग रिक्वेस्ट लोड करने का फंक्शन
+async function fetchPendingTrustRequests() {
+    const { data, error } = await client
+        .from('trusted_list')
+        .select('*')
+        .eq('is_approved', false); // सिर्फ वो जो अभी अप्रूव नहीं हुए
+
+    const container = document.getElementById('pending-trust-list');
+    if (data.length === 0) {
+        container.innerHTML = "<p class='text-slate-400 font-bold text-sm'>No pending requests.</p>";
+        return;
+    }
+
+    container.innerHTML = data.map(req => `
+        <div class="bg-slate-50 p-4 rounded-xl border flex justify-between items-center">
+            <div>
+                <p class="font-black text-slate-900 uppercase">${req.name}</p>
+                <p class="text-xs font-bold text-slate-500">${req.phone}</p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="approveAgent('${req.id}')" class="bg-green-600 text-white px-3 py-1.5 rounded-lg text-[10px] font-black uppercase">Approve</button>
+                <button onclick="rejectAgent('${req.id}')" class="bg-red-100 text-red-600 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase">Reject</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+// एजेंट को अप्रूव करने का फंक्शन
+async function approveAgent(id) {
+    const { error } = await client
+        .from('trusted_list')
+        .update({ is_approved: true })
+        .eq('id', id);
+
+    if (!error) {
+        alert("Agent Approved! ✅");
+        fetchPendingTrustRequests(); // लिस्ट रिफ्रेश करें
+        if(typeof fetchTrustedAgents === 'function') fetchTrustedAgents(); // पब्लिक लिस्ट भी रिफ्रेश करें
+    }
+}
+
+// रिक्वेस्ट डिलीट करने का फंक्शन
+async function rejectAgent(id) {
+    if(confirm("Are you sure you want to reject this agent?")) {
+        const { error } = await client.from('trusted_list').delete().eq('id', id);
+        if (!error) {
+            alert("Request Deleted.");
+            fetchPendingTrustRequests();
         }
     }
 }
