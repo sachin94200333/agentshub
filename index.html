@@ -262,45 +262,46 @@
             </div>
         </div>
 
-     <div id="page-blacklist" class="page-content hidden no-print">
+    <div id="page-blacklist" class="page-content hidden no-print">
     <div class="text-center mb-12">
         <h2 class="text-4xl font-black text-red-600 uppercase italic tracking-tighter mb-4">Scammer Database</h2>
-        
         <div class="max-w-md mx-auto mb-10 px-4">
             <div class="relative flex items-center bg-white rounded-2xl shadow-xl p-2 border-2 border-red-500/20 focus-within:border-red-500 transition-all">
                 <i class="fas fa-search ml-4 text-red-500 text-xl"></i>
-                <input type="text" 
-                       id="blacklist-search-input" 
-                       onkeyup="filterBlacklist()" 
-                       placeholder="Search Scammer ID or Number..." 
-                       class="w-full p-4 pl-4 rounded-xl outline-none font-black text-slate-800">
+                <input type="text" id="blacklist-search-input" onkeyup="filterBlacklist()" placeholder="Search Scammer ID or Number..." class="w-full p-4 pl-4 rounded-xl outline-none font-black text-slate-800">
             </div>
-       <div id="page-trusted" class="page-content hidden no-print">
+        </div>
+        <button onclick="openReportModal()" class="bg-red-600 text-white px-12 py-5 rounded-full font-black text-sm uppercase shadow-2xl hover:bg-red-700 transition">
+            <i class="fas fa-plus mr-2"></i> Report Fraud
+        </button>
+    </div>
+    <div id="blacklist-list-container" class="grid gap-6 md:grid-cols-2"></div>
+</div> <div id="page-trusted" class="page-content hidden no-print">
     <div class="text-center mb-8">
-        <h2 class="text-3xl font-black text-green-600 uppercase italic">Verified Agents</h2>
-        <button onclick="openTrustModal()" class="bg-blue-900 text-white px-8 py-3 rounded-xl font-black text-xs uppercase shadow-lg mt-4">
+        <h2 class="text-3xl font-black text-green-600 uppercase italic">Verified Agents ✅</h2>
+        <p class="text-[10px] font-bold text-slate-400 mb-6 uppercase">Trusted Community List</p>
+        <button onclick="openTrustModal()" class="bg-blue-900 text-white px-10 py-4 rounded-2xl font-black text-xs uppercase shadow-2xl hover:scale-105 transition-all">
             Apply for Trusted Tag 🚀
         </button>
     </div>
-    <div id="trusted-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 px-4"></div>
+    <div id="trusted-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 px-4">
+        <p class="text-slate-300 font-bold text-[10px] uppercase text-center w-full">Loading agents...</p>
+    </div>
 </div>
 
-<div id="trust-modal-overlay" class="fixed inset-0 bg-slate-950/90 hidden z-[200] flex items-center justify-center p-4">
-    </div>    
-    <div class="bg-white p-8 rounded-[2rem] w-full max-w-sm border-t-[10px] border-green-600 shadow-2xl relative">
-        <h3 class="text-xl font-black text-slate-900 mb-2 uppercase">Agent Application</h3>
-        <p class="text-[10px] font-bold text-slate-400 mb-6 uppercase">Verify your identity</p>
-        
-        <div class="space-y-4">
-            <input type="text" id="trust-name" placeholder="Full Name" class="w-full p-4 border-2 border-slate-100 rounded-xl font-bold outline-none focus:border-green-500">
-            <input type="text" id="trust-phone" placeholder="WhatsApp Number" class="w-full p-4 border-2 border-slate-100 rounded-xl font-bold outline-none focus:border-green-500">
-            
-            <button onclick="submitTrustRequest()" class="w-full bg-green-600 text-white py-4 rounded-2xl font-black uppercase text-sm shadow-xl">
-                Submit Request
-            </button>
-            <button onclick="closeTrustModal()" class="w-full text-slate-400 font-bold text-xs mt-2">Maybe Later</button>
+<div id="trust-modal-overlay" class="fixed inset-0 bg-slate-950/90 hidden z-[200] flex items-center justify-center p-4 backdrop-blur-md">
+        <div class="bg-white p-8 rounded-[2rem] w-full max-w-sm border-t-[10px] border-green-600 shadow-2xl relative">
+            <h3 class="text-xl font-black text-slate-900 mb-4 uppercase">Agent Application</h3>
+            <div class="space-y-4">
+                <input type="text" id="trust-name" placeholder="Full Name" class="w-full p-4 border-2 border-slate-100 rounded-xl font-bold">
+                <input type="text" id="trust-phone" placeholder="WhatsApp Number" class="w-full p-4 border-2 border-slate-100 rounded-xl font-bold">
+                <button onclick="submitTrustRequest()" class="w-full bg-green-600 text-white py-4 rounded-2xl font-black uppercase text-sm shadow-xl">Submit Request</button>
+                <button onclick="closeTrustModal()" class="w-full text-slate-400 font-bold text-xs mt-2">Maybe Later</button>
+            </div>
         </div>
     </div>
+
+    <script src="index.js"></script>
 </div>
 
         <button onclick="openReportModal()" class="bg-red-600 text-white px-12 py-5 rounded-full font-black text-sm uppercase shadow-2xl hover:bg-red-700 transition">
@@ -404,19 +405,53 @@
             document.getElementById('out_addr_en').innerText = val || "...";
             autoTrans(val, 'in_addr_hi');
         }
-        async function autoTrans(text, targetId) {
-            if(!text) return;
-            try {
-                const res = await fetch(`https://inputtools.google.com/request?text=${encodeURIComponent(text)}&itc=hi-t-i0-und&num=1`);
-                const data = await res.json();
-                if(data && data[1] && data[1][0] && data[1][0][1]) {
-                    document.getElementById(targetId).value = data[1][0][1][0];
-                    render();
+async function autoTrans(text, targetId) {
+    if (!text) {
+        document.getElementById(targetId).value = '';
+        render(); // अगर बॉक्स खाली है तो कार्ड साफ करें
+        return;
+    }
+
+    try {
+        // 1. URL सही करें
+        const res = await fetch(`https://inputtools.google.com/request?text=${encodeURIComponent(text)}&itc=hi-t-i0-und&num=1`);
+        const data = await res.json();
+
+        if (data && data[1]) {
+            // 2. हर टुकड़े को स्मार्ट तरीके से चेक करें
+            const fullText = data[1].map(item => {
+                const source = item[0];      // इंग्लिश (जो आपने लिखा)
+                const target = item[1][0];   // हिंदी (जो गूगल ने दिया)
+
+                // RULE: अगर इनपुट सिर्फ कोमा (,) है, तो गूगल की मत सुनो, कोमा ही लगाओ
+                if (source === ',' || source === ', ') {
+                    return source;
                 }
-            } catch(e) {
-                document.getElementById(targetId).value = text;
-                render();
-            }
+
+                // RULE: अगर शब्द के साथ कोमा चिपका है (जैसे: "Delhi,")
+                if (source.endsWith(',')) {
+                    // तो हिंदी शब्द के पीछे भी कोमा चिपका दो
+                    return target.replace(/,?$/, ','); 
+                }
+
+                // बाकी सब गूगल जैसा दे रहा है, वैसा रहने दो
+                return target;
+            }).join(''); 
+
+            document.getElementById(targetId).value = fullText;
+            render();
+        }
+    } catch (e) {
+        // अगर कोई एरर आए, तो इंग्लिश वाला ही दिखा दो (ताकि खाली न रहे)
+        document.getElementById(targetId).value = text;
+        render();
+    }
+
+
+
+
+
+
         }
         function render() {
             let uid = document.getElementById('in_uid').value;
@@ -432,24 +467,25 @@
             document.getElementById('out_date').innerText = "Aadhaar no. issued: " + document.getElementById('in_date').value;
         }
 
-     function changePage(pageId) {
-    // 1. सभी पेज को छुपाएं
+   function changePage(pageId) {
+    // 1. सभी पेज छुपाएं
     document.querySelectorAll('.page-content').forEach(view => {
         view.classList.add('hidden');
     });
     
     // 2. जो पेज खोलना है उसे दिखाएं
     const target = document.getElementById('page-' + pageId);
-    if(target) {
+    if (target) {
         target.classList.remove('hidden');
-        console.log("Opened:", pageId);
     }
 
-    // 3. डेटा लोड करें
-    if(pageId === 'trusted') fetchTrustedAgents();
-    if(pageId === 'admin') fetchPendingTrustRequests(); // एडमिन के लिए
-
+    // 3. डेटा लोड करने के लिए पक्का करें (VERY IMPORTANT)
+    if (pageId === 'trusted') {
+        fetchTrustedAgents(); 
+    }
+    
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
 
 }
         function openReportModal() { document.getElementById('report-modal-overlay').classList.remove('hidden'); }
@@ -515,14 +551,28 @@
             closeReportModal(); fetchScammerRecords();
         }
         
-        function handleAdminLogin() {
-            if(document.getElementById('admin-login-pin').value === '8102') {
-                document.getElementById('admin-auth-panel').classList.add('hidden');
-                document.getElementById('admin-main-dashboard').classList.remove('hidden');
-                document.getElementById('approval-toggle-switch').checked = autoApproveMode;
-                loadAdminConsoleData();
-                updateAdminStatsView(); 
-            } else alert("WRONG PIN");
+       function handleAdminLogin() {
+    const pinInput = document.getElementById('admin-login-pin');
+
+    if (pinInput.value === '8102') {
+        // 1. लॉगिन पैनल छुपाएं और डैशबोर्ड दिखाएं
+        document.getElementById('admin-auth-panel').classList.add('hidden');
+        document.getElementById('admin-main-dashboard').classList.remove('hidden');
+
+        // 2. पेंडिंग रिक्वेस्ट लोड करें (सबसे ज़रूरी लाइन)
+        fetchPendingTrustRequests(); 
+        
+        // 3. अगर 'approval-toggle-switch' बटन है तो उसका स्टेटस सेट करें (Optional)
+        const toggleSwitch = document.getElementById('approval-toggle-switch');
+        if (toggleSwitch && typeof autoApproveMode !== 'undefined') {
+            toggleSwitch.checked = autoApproveMode;
+        }
+
+    } else {
+        alert("WRONG PIN ❌");
+        pinInput.value = ""; // गलत पिन डालने पर बॉक्स खाली करें
+    }
+
         }
         function modifySystemMode() { autoApproveMode = document.getElementById('approval-toggle-switch').checked; alert("Mode Updated"); }
         async function loadAdminConsoleData() {
@@ -668,81 +718,161 @@ const canvas = await html2canvas(element, {
 function openTrustModal() { document.getElementById('trust-modal-overlay').classList.remove('hidden'); }
 function closeTrustModal() { document.getElementById('trust-modal-overlay').classList.add('hidden'); }
 
+// ==========================================
+// 1. TRUSTED AGENT: Request Submit Karna
+// ==========================================
 async function submitTrustRequest() {
-    const name = document.getElementById('trust-name').value;
-    const phone = document.getElementById('trust-phone').value;
-    if(!name || !phone) return alert("Fill all fields");
+    const nameInput = document.getElementById('trust-name');
+    const phoneInput = document.getElementById('trust-phone');
+    
+    const name = nameInput.value.trim();
+    const phone = phoneInput.value.trim();
 
-    // डेटाबेस में 'is_approved' को false रखकर भेजें ताकि Admin चेक कर सके
-    await client.from('trusted_list').insert([{ name: name, phone: phone, is_approved: false }]);
-    alert("Request Sent! Admin will verify soon.");
-    closeTrustModal();
-}
-
-async function fetchTrustedAgents() {
-    const { data } = await client.from('trusted_list').select('*').eq('is_approved', true);
-    const container = document.getElementById('trusted-list-container');
-    container.innerHTML = (data || []).map(a => `
-        <div class="bg-white p-5 rounded-2xl border-l-8 border-green-500 shadow-md flex justify-between items-center">
-            <div>
-                <h4 class="font-black text-slate-900 uppercase">${a.name}</h4>
-                <p class="text-green-600 font-bold text-sm"><i class="fab fa-whatsapp"></i> ${a.phone}</p>
-            </div>
-            <div class="bg-green-100 text-green-700 p-2 rounded-full text-xs font-black">VERIFIED ✅</div>
-        </div>
-    `).join('');
-}
-// पेंडिंग रिक्वेस्ट लोड करने का फंक्शन
-async function fetchPendingTrustRequests() {
-    const { data, error } = await client
-        .from('trusted_list')
-        .select('*')
-        .eq('is_approved', false); // सिर्फ वो जो अभी अप्रूव नहीं हुए
-
-    const container = document.getElementById('pending-trust-list');
-    if (data.length === 0) {
-        container.innerHTML = "<p class='text-slate-400 font-bold text-sm'>No pending requests.</p>";
+    if (!name || !phone) {
+        alert("Please fill all fields properly!");
         return;
     }
 
-    container.innerHTML = data.map(req => `
-        <div class="bg-slate-50 p-4 rounded-xl border flex justify-between items-center">
-            <div>
-                <p class="font-black text-slate-900 uppercase">${req.name}</p>
-                <p class="text-xs font-bold text-slate-500">${req.phone}</p>
-            </div>
-            <div class="flex gap-2">
-                <button onclick="approveAgent('${req.id}')" class="bg-green-600 text-white px-3 py-1.5 rounded-lg text-[10px] font-black uppercase">Approve</button>
-                <button onclick="rejectAgent('${req.id}')" class="bg-red-100 text-red-600 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase">Reject</button>
-            </div>
-        </div>
-    `).join('');
+    try {
+        // डेटाबेस में भेजें (is_approved: false ताकि पेंडिंग रहे)
+        const { error } = await client
+            .from('trusted_list')
+            .insert([{ name: name, phone: phone, is_approved: false }]);
+
+        if (error) throw error;
+
+        alert("Request Sent Successfully! 🚀\nAdmin will verify and approve soon.");
+        
+        // फॉर्म खाली करें और मोडल बंद करें
+        nameInput.value = "";
+        phoneInput.value = "";
+        closeTrustModal();
+        
+    } catch (err) {
+        console.error("Submit Error:", err);
+        alert("Error sending request. Check internet or try again.");
+    }
 }
 
-// एजेंट को अप्रूव करने का फंक्शन
+// ==========================================
+// 2. PUBLIC LIST: Verified Agents Dikhana
+// ==========================================
+async function fetchTrustedAgents() {
+    const container = document.getElementById('trusted-list-container');
+    if (!container) return; // सुरक्षा के लिए चेक
+
+    try {
+        const { data, error } = await client
+            .from('trusted_list')
+            .select('*')
+            .eq('is_approved', true); // सिर्फ अप्रूव्ड वाले
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+            container.innerHTML = "<p class='text-slate-400 font-bold text-center w-full uppercase text-[10px]'>No verified agents yet.</p>";
+            return;
+        }
+
+        container.innerHTML = data.map(a => `
+            <div class="bg-white p-5 rounded-2xl border-l-8 border-green-500 shadow-md flex justify-between items-center transform transition hover:scale-[1.02]">
+                <div>
+                    <h4 class="font-black text-slate-900 uppercase text-sm">${a.name}</h4>
+                    <p class="text-green-600 font-bold text-xs mt-1"><i class="fab fa-whatsapp"></i> ${a.phone}</p>
+                </div>
+                <div class="bg-green-100 text-green-700 p-2 px-3 rounded-full text-[10px] font-black tracking-wide shadow-sm">VERIFIED ✅</div>
+            </div>
+        `).join('');
+    } catch (err) {
+        console.error("Fetch error:", err);
+    }
+
+}
+
+// ==========================================
+// 3. ADMIN: Pending Requests Load Karna
+// ==========================================
+async function fetchPendingTrustRequests() {
+    const container = document.getElementById('pending-trust-list'); // HTML ID check karna
+
+    try {
+        // पेंडिंग रिक्वेस्ट लाओ (is_approved: false)
+        const { data, error } = await client
+            .from('trusted_list')
+            .select('*')
+            .eq('is_approved', false); 
+
+        if (error) throw error;
+
+        if (!data || data.length === 0) {
+            container.innerHTML = "<p class='text-slate-400 font-bold text-sm text-center py-4'>No pending requests.</p>";
+            return;
+        }
+
+        container.innerHTML = data.map(req => `
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 flex justify-between items-center shadow-sm">
+                <div>
+                    <p class="font-black text-slate-900 uppercase text-sm">${req.name}</p>
+                    <p class="text-xs font-bold text-slate-500">${req.phone}</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="approveAgent('${req.id}')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-[10px] font-black uppercase shadow transition">
+                        Approve
+                    </button>
+                    <button onclick="rejectAgent('${req.id}')" class="bg-red-100 hover:bg-red-200 text-red-600 px-4 py-2 rounded-lg text-[10px] font-black uppercase transition">
+                        Reject
+                    </button>
+                </div>
+            </div>
+        `).join('');
+        
+    } catch (err) {
+        console.error("Pending Fetch Error:", err);
+        container.innerHTML = "<p class='text-red-400 font-bold text-xs'>Error loading requests.</p>";
+    }
+}
+
+// ==========================================
+// 4. ADMIN: Approve Logic
+// ==========================================
 async function approveAgent(id) {
     const { error } = await client
         .from('trusted_list')
         .update({ is_approved: true })
         .eq('id', id);
 
-    if (!error) {
-        alert("Agent Approved! ✅");
-        fetchPendingTrustRequests(); // लिस्ट रिफ्रेश करें
-        if(typeof fetchTrustedAgents === 'function') fetchTrustedAgents(); // पब्लिक लिस्ट भी रिफ्रेश करें
-    }
+   if (!error) {
+    alert("Agent Approved! ✅");
+    // 'await' जोड़ना बहुत ज़रूरी है ताकि लिस्ट ताज़ा लोड हो
+    await fetchPendingTrustRequests(); 
+    await fetchTrustedAgents();        
 }
 
-// रिक्वेस्ट डिलीट करने का फंक्शन
+}
+
+// =================+=========================
+// 5. ADMIN: Reject Logic
+// ==========================================
 async function rejectAgent(id) {
-    if(confirm("Are you sure you want to reject this agent?")) {
-        const { error } = await client.from('trusted_list').delete().eq('id', id);
-        if (!error) {
-            alert("Request Deleted.");
-            fetchPendingTrustRequests();
-        }
+    if(!confirm("Are you sure you want to REJECT and DELETE this request?")) return;
+
+    try {
+        const { error } = await client
+            .from('trusted_list')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
+
+        alert("Request Rejected & Deleted.");
+        fetchPendingTrustRequests(); // Refresh admin list
+        
+    } catch (err) {
+        console.error("Reject Error:", err);
+        alert("Failed to delete request.");
     }
 }
-    </script>
-</body>
+    
+// ---------------------------------------------------------
+</script> </body>
 </html>
