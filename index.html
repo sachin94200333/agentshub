@@ -551,27 +551,20 @@ async function autoTrans(text, targetId) {
             closeReportModal(); fetchScammerRecords();
         }
         
-       function handleAdminLogin() {
+     function handleAdminLogin() {
     const pinInput = document.getElementById('admin-login-pin');
-
     if (pinInput.value === '8102') {
-        // 1. लॉगिन पैनल छुपाएं और डैशबोर्ड दिखाएं
         document.getElementById('admin-auth-panel').classList.add('hidden');
         document.getElementById('admin-main-dashboard').classList.remove('hidden');
 
-        // 2. पेंडिंग रिक्वेस्ट लोड करें (सबसे ज़रूरी लाइन)
+        // ये 3 लाइनें पक्का करें ताकि लॉगिन करते ही सब डेटा आ जाए
         fetchPendingTrustRequests(); 
-        
-        // 3. अगर 'approval-toggle-switch' बटन है तो उसका स्टेटस सेट करें (Optional)
-        const toggleSwitch = document.getElementById('approval-toggle-switch');
-        if (toggleSwitch && typeof autoApproveMode !== 'undefined') {
-            toggleSwitch.checked = autoApproveMode;
-        }
-
+        loadAdminConsoleData(); 
+        updateAdminStatsView(); // यह लाइन पुराने डाउनलोड्स को '0' से असली नंबर पर ले आएगी
     } else {
         alert("WRONG PIN ❌");
-        pinInput.value = ""; // गलत पिन डालने पर बॉक्स खाली करें
     }
+
 
         }
         function modifySystemMode() { autoApproveMode = document.getElementById('approval-toggle-switch').checked; alert("Mode Updated"); }
